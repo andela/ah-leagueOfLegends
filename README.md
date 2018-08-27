@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/andela/ah-leagueOfLegends.svg?branch=develop)](https://travis-ci.org/andela/ah-leagueOfLegends)
+
 Authors Haven - A Social platform for the creative at heart.
 =======
 
