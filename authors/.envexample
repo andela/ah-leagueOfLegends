@@ -1,6 +1,6 @@
 export SECRET_KEY=mysecretkey
 export host=localhost
-export databse=dbname
+export database=dbname
 export user=postgres
 export password=mypassword
 export port=5432
