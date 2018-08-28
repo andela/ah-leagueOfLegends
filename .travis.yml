@@ -1,0 +1,24 @@
+language: python
+
+python:
+  - "3.6"
+  - "3.7.0"
+
+install:
+  - pip install -r requirements.txt
+  - pip install coveralls
+
+services:
+  - postgresql
+
+before_script:
+- psql -c "CREATE DATABASE test_authors_haven;" -U postgres
+- psql -c "CREATE USER foo WITH PASSWORD 'bar';" -U postgres
+
+script:
+  - coverage run --source=authors/apps manage.py test
+
+after_success:
+  - coveralls
+
+cache: pip
