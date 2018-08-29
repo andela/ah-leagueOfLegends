@@ -1,4 +1,5 @@
 from rest_framework.test import APIClient, APITestCase
+from django.urls import reverse
 
 
 class BaseTest(APITestCase):
@@ -10,6 +11,14 @@ class BaseTest(APITestCase):
                     "email": "jake@jake.jake",
                     "username": "jake",
                     "password": "HelloWorldKen123"
+                }
+        }
+
+        self.user_cred_wrong_pass = {
+            "user": {
+                    "email": "jake@jake.jake",
+                    "username": "jake",
+                    "password": "some_fake_password"
                 }
         }
 
@@ -36,3 +45,10 @@ class BaseTest(APITestCase):
                     "password": ""
                 }
         }
+
+    def register_user(self):
+        return self.client.post(
+               reverse('user_signup'),
+               self.user_cred,
+               format='json'
+        )
