@@ -10,7 +10,7 @@ class UserAuthenticationTestCase(BaseTest):
 
     def test_user_registration(self):
         response = self.client.post(
-               reverse('user_signup'),
+               reverse('authentication:user_signup'),
                self.user_cred,
                format='json'
         )
@@ -18,7 +18,7 @@ class UserAuthenticationTestCase(BaseTest):
 
     def test_user_registration_no_email(self):
         response = self.client.post(
-               reverse('user_signup'),
+               reverse('authentication:user_signup'),
                self.user_cred_no_email,
                format='json'
         )
@@ -26,7 +26,7 @@ class UserAuthenticationTestCase(BaseTest):
 
     def test_user_registration_no_username(self):
         response = self.client.post(
-               reverse('user_signup'),
+               reverse('authentication:user_signup'),
                self.user_cred_no_username,
                format='json'
         )
@@ -35,7 +35,7 @@ class UserAuthenticationTestCase(BaseTest):
 
     def test_user_registration_no_details(self):
         response = self.client.post(
-               reverse('user_signup'),
+               reverse('authentication:user_signup'),
                self.user_cred_no_details,
                format='json'
         )
@@ -48,11 +48,11 @@ class UserAuthenticationTestCase(BaseTest):
 
     def test_user_login(self):
         response = self.client.post(
-               reverse('user_signup'),
+               reverse('authentication:user_signup'),
                self.user_cred,
                format='json')
         response = self.client.post(
-               reverse('user_login'),
+               reverse('authentication:user_login'),
                self.user_cred,
                format='json'
         )
@@ -61,11 +61,11 @@ class UserAuthenticationTestCase(BaseTest):
 
     def test_login_wrong_password(self):
         response = self.client.post(
-               reverse('user_signup'),
+               self.SIGN_UP_URL,
                self.user_cred,
                format='json')
         response = self.client.post(
-               reverse('user_signup'),
+               reverse('authentication:user_login'),
                self.user_cred_wrong_pass,
                format='json')
 

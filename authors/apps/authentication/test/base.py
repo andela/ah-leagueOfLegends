@@ -6,6 +6,8 @@ class BaseTest(APITestCase):
     client = APIClient
 
     def setUp(self):
+        self.SIGN_UP_URL = '/api/users/'
+
         self.user_cred = {
             "user": {
                     "email": "jake@jake.jake",
@@ -48,8 +50,7 @@ class BaseTest(APITestCase):
 
     def register_user(self):
         return self.client.post(
-               reverse('user_signup'),
+               self.SIGN_UP_URL,
                self.user_cred,
                format='json'
         )
-
