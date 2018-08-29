@@ -14,8 +14,8 @@ services:
   - postgresql
 
 before_script:
-- psql -c "CREATE DATABASE test_authors_haven;" -U postgres
-- psql -c "CREATE USER author WITH PASSWORD 'qwertyui123';" -U postgres
+# - psql -c "CREATE DATABASE test_authors_haven;" -U postgres
+# - psql -c "CREATE USER author WITH PASSWORD 'qwertyui123';" -U postgres
 - psql -c "ALTER USER author CREATEDB;"
 
 script:
