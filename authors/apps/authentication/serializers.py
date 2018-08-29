@@ -83,6 +83,7 @@ class LoginSerializer(serializers.Serializer):
         # The `validate` method should return a dictionary of validated data.
         # This is the data that is passed to the `create` and `update` methods
         # that we will see later on.
+        print(user)
         return {
             'email': user.email,
             'username': user.username,
