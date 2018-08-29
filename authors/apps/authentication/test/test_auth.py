@@ -26,5 +26,30 @@ class UserAuthenticationTestCase(BaseTest):
                self.user_cred,
                format='json'
         )
-        print(response.data['email'])
+
         self.assertEquals(status.HTTP_200_OK, response.status_code)
+
+    def test_user_registration_no_email(self):
+        response = self.client.post(
+               reverse('user_signup'),
+               self.user_cred_no_email,
+               format='json'
+        )
+        self.assertEquals(status.HTTP_400_BAD_REQUEST, response.status_code)
+
+    def test_user_registration_no_username(self):
+        response = self.client.post(
+               reverse('user_signup'),
+               self.user_cred_no_username,
+               format='json'
+        )
+        self.assertEquals(status.HTTP_400_BAD_REQUEST, response.status_code)
+
+
+    def test_user_registration_no_details(self):
+        response = self.client.post(
+               reverse('user_signup'),
+               self.user_cred_no_details,
+               format='json'
+        )
+        self.assertEquals(status.HTTP_400_BAD_REQUEST, response.status_code)
