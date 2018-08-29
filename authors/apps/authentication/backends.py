@@ -48,6 +48,8 @@ class JWTAuthentication(authentication.TokenAuthentication):
         model = self.get_model()
         try:
             token = model.objects.select_related('user').get(key=key)
+            print(token)
+            print(model)
         except model.DoesNotExist:
             raise exceptions.AuthenticationFailed('Authentication Failed')
         if not token.user.is_active:
