@@ -69,5 +69,4 @@ class UserAuthenticationTestCase(BaseTest):
                self.user_cred_wrong_pass,
                format='json')
 
-    
-
+        self.assertEquals(status.HTTP_400_BAD_REQUEST, response.status_code)

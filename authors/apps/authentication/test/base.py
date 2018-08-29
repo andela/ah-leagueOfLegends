@@ -52,3 +52,4 @@ class BaseTest(APITestCase):
                self.user_cred,
                format='json'
         )
+
