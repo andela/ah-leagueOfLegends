@@ -1,7 +1,0 @@
-export DATABASE_URL:postgres://{user}:{password}@{hostname}:{port}/{database-name}
-export SECRET_KEY=mysecretkey
-export host=localhost
-export database=dbname
-export user=postgres
-export password=mypassword
-export port=5432
