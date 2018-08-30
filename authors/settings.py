@@ -80,20 +80,7 @@ WSGI_APPLICATION = 'authors.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('database'),
-        'PORT': os.getenv('port'),
-        'USER': os.getenv('user'),
-        'PASSWORD': os.getenv('password'),
-        'HOST': os.getenv('host'),
-    }
-}
-
-# Heroku DB config
-
-DATABASES['default'] = dj_database_url.config(os.getenv('DATABASE_URL'))
+DATABASES = dict(default = dj_database_url.config())
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
