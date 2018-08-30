@@ -8,6 +8,7 @@ matrix:
       sudo: true
 
 install:
+  - pip install -r requirements-dev.txt
   - pip install -r requirements.txt
   - pip install coveralls
 
