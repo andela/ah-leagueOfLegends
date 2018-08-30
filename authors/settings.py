@@ -93,7 +93,7 @@ DATABASES = {
 
 # Heroku DB config
 
-DATABASES['default'] = dj_database_url.config(os.getenv('DATABASES_URL'))
+DATABASES['default'] = dj_database_url.config(os.getenv('DATABASE_URL'))
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
