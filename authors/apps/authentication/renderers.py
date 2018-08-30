@@ -1,7 +1,6 @@
 import json
 
 from rest_framework.renderers import JSONRenderer
-from .token_gen import generate_token
 
 
 class UserJSONRenderer(JSONRenderer):
@@ -19,8 +18,6 @@ class UserJSONRenderer(JSONRenderer):
             # rendering errors.
             return super(UserJSONRenderer, self).render(data)
         # Finally, we can render our data under the "user" namespace.
-        token = generate_token(data)
-        data['token'] = token
         return json.dumps({
             'user': data,
         })
