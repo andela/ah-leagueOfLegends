@@ -29,7 +29,7 @@
 
 ```
 
-## Screenshots if availble to support PR
+## Screenshots if available to support PR
 
 ```
 
