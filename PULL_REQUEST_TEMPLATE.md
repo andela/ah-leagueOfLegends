@@ -24,17 +24,12 @@
 
 ## What are the relevant pivotal tracker stories?
 
-```
+[#StoryId](Link To Story)
 
 
-```
-
-## Screenshots if available to support PR
-
-```
+## Screenshots if available to support PR.
 
 
-```
 ## Questions:
 
 ```
