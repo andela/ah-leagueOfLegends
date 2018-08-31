@@ -5,7 +5,6 @@ __pycache__/
 .vscode/
 # C extensions
 *.so
-
 # Distribution / packaging
 .Python
 env/
@@ -91,3 +90,6 @@ ENV/
 
 # SQLite3
 db.sqlite3
+
+# .vscode settings
+.vscode
