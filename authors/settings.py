@@ -83,17 +83,6 @@ WSGI_APPLICATION = 'authors.wsgi.application'
 
 DATABASES = dict(default = dj_database_url.config())
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'authors_haven',
-        'USER': 'author',
-        'PASSWORD': 'qwertyui123',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
-    }
-}
-
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
 
