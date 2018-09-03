@@ -10,5 +10,4 @@ from rest_framework import authentication, exceptions
 
 
 class JWTAuthentication(authentication.TokenAuthentication):
-    pass
-
+  pass
