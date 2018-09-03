@@ -1,0 +1,29 @@
+
+language: python
+
+matrix:
+  include:
+    - python: 3.7
+      dist: xenial
+      sudo: true
+
+install:
+  - pip install -r requirements-dev.txt
+  - pip install -r requirements.txt
+  - pip install coveralls
+
+services:
+  - postgresql
+
+before_script:
+- psql -c "CREATE DATABASE tests_authors_haven;" -U postgres
+- psql -c "CREATE USER author WITH PASSWORD 'qwertyui123';" -U postgres
+- psql -c "ALTER USER author CREATEDB;" -U postgres
+
+script:
+  - coverage run --source=authors/apps manage.py test
+
+after_success:
+  - coveralls
+
+cache: pip
