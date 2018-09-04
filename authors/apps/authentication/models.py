@@ -115,3 +115,22 @@ class User(AbstractBaseUser, PermissionsMixin):
         the user's real name, we return their username instead.
         """
         return self.username
+    
+    @property
+    def token(self):
+        return self._generate_jwt_token()
+
+    def _generate_jwt_token(self):
+       """
+       Generates a JSON Web Token. Token stores user's ID with an expiry
+       time set to 30 days. Gets secret key from settings module.
+       Leading underscore makes the method private.
+       """
+       date_now = datetime.now() + timedelta(days=30)
+
+       token = jwt.encode({
+           'id': self.pk,
+           'exp': int(date_now.strftime('%s'))
+       }, settings.SECRET_KEY, algorithm='HS256')
+
+       return token.decode('utf-8')
