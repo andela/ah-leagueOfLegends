@@ -17,9 +17,16 @@ Including another URLconf
 from django.urls import path, include
 from django.contrib import admin
 
+# from mysite.core import views as core_views
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('authors.apps.authentication.urls')),
     path('api/', include('authors.apps.articles.urls', namespace='articles')),
     path('api/profiles', include('authors.apps.profiles.urls'))
+    path('oauth/', include('social_django.urls')),
 ]
+
+LOGIN_URL = 'login'
+LOGOUT_URL = 'logout'
+LOGIN_REDIRECT_URL = 'home'
