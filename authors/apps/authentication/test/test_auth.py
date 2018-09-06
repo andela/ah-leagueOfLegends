@@ -1,3 +1,4 @@
+
 from authors.apps.base_test import BaseTest
 from django.urls import reverse
 from rest_framework.views import status
@@ -77,4 +78,4 @@ class UserAuthenticationTestCase(BaseTest):
 
         self.assertEquals(status.HTTP_400_BAD_REQUEST, response.status_code)
 
-    
+

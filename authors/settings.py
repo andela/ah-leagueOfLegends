@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'corsheaders',
-    'django_extensions',
+    # 'django_extensions',
     'rest_framework',
 
     'authors.apps.authentication',
@@ -79,6 +79,7 @@ WSGI_APPLICATION = 'authors.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
+
 
 
 DATABASES = dict(default = dj_database_url.config())
