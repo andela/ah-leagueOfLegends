@@ -22,7 +22,8 @@ from ..chk_token import authcheck_token
 class EmailAuthenticationTestCase(BaseTest):
 
     def test_email_is_sent(self):
-        pass
+        self.register_user()
+        self.assertEquals(len(mail.outbox), 1)
 
     def test_user_can_reset_password(self):
         '''Test registered users can reset their password by sending token
