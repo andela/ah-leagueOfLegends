@@ -3,7 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 .vscode/
+dan
 # C extensions
+.DS_Store
 *.so
 # Distribution / packaging
 .Python
