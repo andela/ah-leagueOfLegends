@@ -20,7 +20,6 @@ before_script:
 - psql -c "CREATE DATABASE tests_authors_haven;" -U postgres
 - psql -c "CREATE USER author WITH PASSWORD 'qwertyui123';" -U postgres
 - psql -c "ALTER USER author CREATEDB;" -U postgres
-- celery -A authors worker -l info
 
 script:
   - coverage run --source=authors/apps manage.py test
