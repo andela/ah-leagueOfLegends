@@ -81,8 +81,7 @@ WSGI_APPLICATION = 'authors.wsgi.application'
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
 
-
-DATABASES = dict(default = dj_database_url.config())
+DATABASES = dict(default=dj_database_url.config())
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
