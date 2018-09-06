@@ -6,6 +6,8 @@ class BaseTest(APITestCase):
     client = APIClient
 
     def setUp(self):
+        CELERY_TASK_ALWAYS_EAGER = True
+        CELERY_TASK_EAGER_PROPOGATES = True
         self.SIGN_UP_URL = '/api/users/'
 
         self.user_cred = {
