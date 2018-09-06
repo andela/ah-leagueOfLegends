@@ -162,5 +162,4 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 EMAIL_PORT = os.getenv('EMAIL_PORT')
 
-CELERY_BROKER_URL = 'amqp://localhost'  # Add a broker where the messages are
-                                        # are goin to be stored
+CELERY_BROKER_URL = 'amqp://localhost' 

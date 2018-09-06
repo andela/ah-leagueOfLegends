@@ -1,6 +1,6 @@
 from rest_framework.test import APIClient, APITestCase
 from django.urls import reverse
-from django.conf import settings 
+from django.conf import settings
 
 class BaseTest(APITestCase):
     client = APIClient
