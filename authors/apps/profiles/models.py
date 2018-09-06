@@ -1,7 +1,7 @@
 from django.db import models
+from authors.apps.core.models import TimestampedModel
 
-
-class Profile(models.Model):
+class Profile(TimestampedModel):
     """ This class represents the user Profile model """
     # There is one-to-one relationship between the user an profile model
     # A user will only have one related Profile model
