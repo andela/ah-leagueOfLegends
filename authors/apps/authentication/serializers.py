@@ -200,7 +200,7 @@ class UserSerializer(serializers.ModelSerializer):
         # save the model.
         instance.save()
 
-        for (key, value) in profile_data.items():
+        for (key, value) in user_profile_data.items():
             setattr(instance.profile, key, value)
         
         instance.profile.save()
