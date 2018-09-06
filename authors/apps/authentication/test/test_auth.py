@@ -1,19 +1,9 @@
 from django.urls import reverse
-from rest_framework.views import status
-from django.core import mail
-from rest_framework.authtoken.models import Token
-
-from django.urls import reverse
-from rest_framework.test import APITestCase
-from rest_framework import status
 from ..models import User
-from django.core import mail
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
-from rest_framework.test import force_authenticate
 from rest_framework.test import APIRequestFactory
 
-from ..models import User
 from ..views import Verify
 from authors.apps.base_test import BaseTest
 from ..chk_token import authcheck_token
