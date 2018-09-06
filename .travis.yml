@@ -21,7 +21,7 @@ before_script:
 - psql -c "ALTER USER author CREATEDB;" -U postgres
 
 script:
-  - coverage run --source=authors/apps manage.py test
+  - coverage run  manage.py test
 
 after_success:
   - coveralls
