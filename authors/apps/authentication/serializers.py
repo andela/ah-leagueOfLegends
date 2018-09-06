@@ -1,3 +1,5 @@
+import re
+
 from django.contrib.auth import authenticate
 
 from rest_framework import serializers
@@ -10,20 +12,67 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     # Ensure passwords are at least 8 characters long, no longer than 128
     # characters, and can not be read by the client.
-    password = serializers.CharField(
-        max_length=128,
-        min_length=8,
-        write_only=True
-    )
-    token = serializers.CharField(max_length=255, read_only=True)
-    # The client should not be able to send a token along with a registration
-    # request. Making `token` read-only handles that for us.
+    # allow_blank=True, to enable `" "` as a valid value for a password so as to customize the validation error message,
+    # allow_null=True, enable `Null`/`None` as a valid value for a password
+    password = serializers.CharField(max_length=128, write_only=True,  allow_blank=True, allow_null=True)
+
+    # Ensure emails are not longer than 128 characters,
+    # allow_blank=True, to enable `" "` as a valid value for a email so as to customize the validation error message,
+    # allow_null=True, enable `Null`/`None` as a valid value for a email
+    email = serializers.EmailField(max_length=128, allow_blank=True, allow_null=True)
+
+    # Ensure username are not longer than 128 characters,
+    # allow_blank=True, to enable `" "` as a valid value for a username so as to customize the validation error message,
+    # allow_null=True, enable `Null`/`None` as a valid value for a username
+    username = serializers.CharField(max_length=128, allow_blank=True, allow_null=True)
+
+    def validate_email(self, data):
+        """Validate the email address"""
+        email = data
+        if email == '':
+            raise serializers.ValidationError('Email field is required.')
+        elif User.objects.filter(email=email):
+            raise serializers.ValidationError('This email is not available. Please try another.')
+        return data
+
+    def validate_username(self, data):
+        """Validate the username"""
+        username = data
+        if username == '':
+            raise serializers.ValidationError('Username field is required.')
+        elif User.objects.filter(username=username):
+            raise serializers.ValidationError('This username is not available. Please try another.')
+        return data
+
+    def validate_password(self, data):
+        """Validate the password"""
+        password = data
+        # Ensure passwords are not empty.
+        if password == "":
+            raise serializers.ValidationError("Password field is required.")
+        # Ensure passwords are longer than 8 characters.
+        elif len(password) < 8:
+            raise serializers.ValidationError(
+                'Create a password at least 8 characters.')
+        # Ensure passwords contain a number.
+        elif not re.match(r"^(?=.*[0-9]).*", password):
+            raise serializers.ValidationError(
+                'Create a password with at least one number.')
+        # Ensure passwords contain an uppercase letter.
+        elif not re.match(r"^(?=.*[A-Z])(?!.*\s).*", password):
+            raise serializers.ValidationError(
+                "Create a password with at least one uppercase letter")
+        # Ensure passwords contain a special character
+        elif re.match(r"^[a-zA-Z0-9_]*$", password):
+            raise serializers.ValidationError(
+                "Create a password with at least one special character.")
+        return data
 
     class Meta:
         model = User
         # List all of the fields that could possibly be included in a request
         # or response, including fields specified explicitly above.
-        fields = ['email', 'username', 'password','token']
+        fields = ['email', 'username', 'password']
 
     def create(self, validated_data):
         # Use the `create_user` method we wrote earlier to create a new user.
