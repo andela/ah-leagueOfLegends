@@ -19,7 +19,7 @@ class BaseTest(APITestCase):
             "user": {
                     "email": "jake@jakerr.jake",
                     "username": "jakerrrrrr",
-                    "password": "HelloWorldKen123"
+                    "password": "J!ake123456"
                 }
         }
 
