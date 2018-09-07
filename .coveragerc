@@ -1,0 +1,17 @@
+[report]
+omit =
+    */authors/apps/__init__.py
+    */authors/apps/authentication/__init__.py
+    */authors/apps/core/__init__.py
+    */authors/apps/core/exceptions.py
+    */authors/apps/authentication/migrations/0001_initial.py
+    */authors/apps/authentication/migrations/__init__.py
+    */authors/apps/profiles/__init__.py
+    */authors/apps/profiles/tests/__init__.py
+    */authors/apps/authentication/test/__init__.py
+    */authors/apps/authentication/test/base.py
+    */authors/apps/authentication/test/test_auth.py
+    */authors/apps/authentication/test/test_models.py
+    */authors/apps/authentication/test/test_register_validation.py
+    */authors/apps/base_test.py
+    */authors/apps/profiles/tests/test_profiles.py
