@@ -9,14 +9,18 @@ class ArticleSerializer(serializers.ModelSerializer):
     description = serializers.CharField(required=False)
     slug = serializers.SlugField(required=False)
 
-    # As for Django, serializers validate date then either save or return to the user 
+    # As for Django, serializers validate date 
+    # then either save or return to the user 
     # via views.
-    # We want to populate created_at and updated_at fields by calling methods
+    # We want to populate created_at and 
+    # updated_at fields by calling methods
     # get_updated_at() and get_created_at() and serialize them
 
-    created_at_date = serializers.SerializerMethodField(method_name='get_created_at')
+    created_at_date = serializers.SerializerMethodField(
+        method_name='get_created_at')
 
-    updated_at_date = serializers.SerializerMethodField(method_name='get_updated_at')
+    updated_at_date = serializers.SerializerMethodField(
+        method_name='get_updated_at')
 
     class Meta:
 

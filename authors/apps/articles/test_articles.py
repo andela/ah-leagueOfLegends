@@ -1,12 +1,14 @@
-from .base import BaseTest
+
+from ..base_test import BaseTest
 from django.urls import reverse
 from rest_framework.views import status
 import json
 
 class ArticleTestCase(BaseTest):
-
-
-
+    """ 
+    Class implements tests for artcles
+    """
+    
     def create_article(self, token, article):
         """
         Helper method to creates an article
@@ -198,7 +200,8 @@ class ArticleTestCase(BaseTest):
         response = self.create_article(token, self.testArticle)
         self.assertEquals(status.HTTP_201_CREATED, response.status_code)
         # Update the created article
-        response = self.update_article(token, 'how-to-feed-your-dragon', self.testArticle1)
+        response = self.update_article(
+            token, 'how-to-feed-your-dragon', self.testArticle1)
         self.assertIn('how-to-train-your-dragon', response.content.decode())
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -319,7 +322,8 @@ class ArticleTestCase(BaseTest):
         token = response.data['token']
         # Update the article created by another user.
         # Expects to throw a 404 error
-        response = self.update_article(token, 'how-to-feed-your-dragon', self.testArticle1)
+        response = self.update_article(
+            token, 'how-to-feed-your-dragon', self.testArticle1)
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -357,7 +361,8 @@ class ArticleTestCase(BaseTest):
 
         # Update the article created by another user.
         # Expects to throw a 404 error
-        response = self.update_article(token, 'how-to-feed-your-dragonn', self.testArticle1)
+        response = self.update_article(
+            token, 'how-to-feed-your-dragonn', self.testArticle1)
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
