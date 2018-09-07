@@ -1,6 +1,7 @@
 import re
 
 from django.contrib.auth import authenticate
+from django.contrib.auth.tokens import default_token_generator
 
 from rest_framework import serializers
 
@@ -193,3 +194,44 @@ class UserSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+
+
+class EmailSerializer(serializers.Serializer):
+    email = serializers.EmailField(max_length=255)
+    token = serializers.CharField(max_length=255, required=False)
+
+    def validate(self, payload):
+        check_user = User.objects.filter(email=payload.get('email', None))\
+            .first()
+        if not check_user:
+            raise serializers.ValidationError('Email does not exist')
+        token = default_token_generator.make_token(check_user)
+        return{
+                'email': payload['email'],
+                'token': token
+            }
+
+
+class ResetUserPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField(max_length=255)
+    token = serializers.CharField(max_length=255, required=False)
+    new_password = serializers.CharField(
+                min_length=6,
+                max_length=80,
+                write_only=True
+            )
+
+    def validate(self, validated_data):
+        from django.contrib.auth.tokens import default_token_generator
+        user_email = User.objects.filter(email=validated_data.get('email',
+                                         None)).first()
+        check_valid_token = default_token_generator.check_token(
+                user_email, validated_data.get('token', None)
+                )
+        if not check_valid_token:
+            raise serializers.ValidationError(
+                    "Token expired or Invalid"
+                )
+        user_email.set_password(validated_data.get('new_password', None))
+        user_email.save()
+        return validated_data

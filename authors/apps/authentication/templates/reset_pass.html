@@ -1,0 +1,6 @@
+{% autoescape off %}
+Hello {{ email }}. Please click at the link below to reset your password.
+{{ token }}
+<a href= http://127.0.0.1:8000{% url 'authentication:reset_password' %} >Reset
+Password</a>
+{% endautoescape %}

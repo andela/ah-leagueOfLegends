@@ -73,7 +73,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     # log into the Django admin site. For most users, this flag will always be
     # false.
     is_staff = models.BooleanField(default=False)
-
+    # Checks if the user has clicked the confirmation link sent to user's Email
+    confirmed_user = models.BooleanField(default=False)
     # A timestamp representing when this object was created.
     created_at = models.DateTimeField(auto_now_add=True)
 

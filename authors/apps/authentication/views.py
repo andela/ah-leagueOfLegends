@@ -4,10 +4,21 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from django.utils.encoding import force_bytes, force_text
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.http import HttpResponse
+from django.contrib.auth import get_user_model
+
+from .models import User
 from .renderers import UserJSONRenderer
 from .serializers import (
-    LoginSerializer, RegistrationSerializer, UserSerializer
+    LoginSerializer, RegistrationSerializer, UserSerializer,
+    EmailSerializer, ResetUserPasswordSerializer
+
 )
+from authors.settings import EMAIL_HOST_USER
+from authors.apps.core.email_with_celery import SendEmail
+from .chk_token import authcheck_token
 
 
 class RegistrationAPIView(APIView):
@@ -25,6 +36,22 @@ class RegistrationAPIView(APIView):
         serializer = self.serializer_class(data=user)
         serializer.is_valid(raise_exception=True)
         serializer.save()
+
+        serialized_email = serializer.data.get('email', None)
+        user_email = get_user_model().objects.\
+            filter(email=serialized_email).first()
+        SendEmail(
+                template='verify_email.html',
+                context={
+                    'user': user,
+                    'uid': urlsafe_base64_encode(force_bytes(user_email.pk)
+                                                 ).decode("utf-8"),
+                    'token': authcheck_token.make_token(user_email)},
+                subject='Authors Haven Verification',
+                e_to=[user['email'], ],
+                e_from=EMAIL_HOST_USER,
+        ).send()
+        print(request.data)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -72,3 +99,65 @@ class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
         serializer.save()
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class VerifyAPIView(APIView):
+    '''View for handling verification of user account, once the user signs up,
+    a verification Token is set to the users email
+    Arguments:
+        APIView {[token, uuid]} -- [token is for verifying the user email and
+        the uuid is for getting the user id]
+    Returns:
+        [type] -- [Http Response if the user was successfully verified or not]
+    '''
+
+    def get(self, request, uidb64, token):
+        try:
+            uuid = force_text(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uuid)
+        except (User.DoesNotExist):
+            user = None
+        if user and authcheck_token.check_token(user, token):
+            user.confirmed_user = True
+            user.save()
+            return HttpResponse('Email confirmed successfully')
+        else:
+            return HttpResponse('Email confirmation failed')
+
+
+class UserForgetPasswordView(APIView):
+    permission_classes = (AllowAny,)
+    serializer_class = EmailSerializer
+
+    def post(self, request):
+        from authors.apps.core.email_with_celery import SendEmail
+        serializer = EmailSerializer(data=request.data)
+        if serializer.is_valid():
+            reset_link = 'http://' + request.META['HTTP_HOST'] + \
+                '/api/auth/' + serializer.data['token']
+            from django.conf import settings
+            SendEmail(
+                template='reset_pass.html',
+                context={
+                    'reset_url': reset_link,
+                    'email': serializer.data['email'],
+                    'token': serializer.data['token']
+                 },
+                subject='Authors Haven Verification',
+                e_to=[serializer.data['email'], ],
+                e_from=settings.EMAIL_HOST_USER,).send()
+
+        return HttpResponse('Reset Link successfully sent to your Email')
+
+
+class ResetPasswordLinkView(APIView):
+
+    permission_classes = (AllowAny,)
+    serializer_class = ResetUserPasswordSerializer
+
+    def put(self, request):
+        serializer = ResetUserPasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            msg = f'Password Successfull Reset'
+            return Response({'message': msg}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
