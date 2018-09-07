@@ -1,7 +1,7 @@
 from django.urls import path
 
 from .views import (
-    LoginAPIView, RegistrationAPIView, UserRetrieveUpdateAPIView
+    LoginAPIView, RegistrationAPIView, UserRetrieveUpdateAPIView, SocialAuth
 )
 from . import views
 app_name = 'authentication'
@@ -15,6 +15,7 @@ urlpatterns = [
          name='forgot_pass'),
     path('users/reset_password/<token>/',
          views.ResetPasswordLinkView.as_view(),
-         name='reset_password')
+         name='reset_password'),
 
+    path('users/social_auth/', SocialAuth.as_view(), name="social_auth"),
 ]
