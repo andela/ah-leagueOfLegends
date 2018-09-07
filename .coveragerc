@@ -15,3 +15,6 @@ omit =
     */authors/apps/authentication/test/test_register_validation.py
     */authors/apps/base_test.py
     */authors/apps/profiles/tests/test_profiles.py
+    */python?.?/*
+    */site-packages/*
+    */tests/*
