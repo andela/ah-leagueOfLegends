@@ -6,6 +6,7 @@ class BaseTest(APITestCase):
 
     def setUp(self):
         self.SIGN_UP_URL = '/api/users/'
+        self.PROFILE_URL = '/api/users/profiles/'
 
         self.user_cred = {
             "user": {
@@ -77,7 +78,10 @@ class BaseTest(APITestCase):
                self.user_cred,
                format='json'
         )
-    
+    def get_profile(self,username):
+        return self.client.get(
+               self.PROFILE_URL + str(username)
+        )    
     def login_user(self):
         return self.client.post(
                self.SIGN_UP_URL,
