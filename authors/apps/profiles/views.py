@@ -4,6 +4,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from .models import Profile
+from .exceptions import ProfileDoesNotExist
 from .renderers import ProfileJSONRenderer
 from .serializers import ProfileSerializer
 
@@ -19,7 +20,7 @@ class ProfileRetrieveAPIView(RetrieveAPIView):
                 user__username=username
             )
         except Profile.DoesNotExist:
-            raise
+            raise ProfileDoesNotExist
 
         serializer = self.serializer_class(profile)
 
