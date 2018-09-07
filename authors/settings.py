@@ -156,3 +156,11 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10,
 }
 
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'authorshaven35@gmail.com'
+EMAIL_HOST_PASSWORD = 'CIT-221-062/2014'
+EMAIL_PORT = 587
+
+CELERY_BROKER_URL = 'amqp://localhost'  # Add a broker where the messages are
+                                        # are goin to be stored
