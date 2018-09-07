@@ -29,15 +29,18 @@ class Article(TimestampedModel):
 
     body = models.TextField()
 
-    tagList = ArrayField(models.CharField(max_length=255), default=None, null=True, blank=True)
+    tagList = ArrayField(models.CharField(
+        max_length=255), default=None, null=True, blank=True)
 
-    image = models.ImageField(upload_to='myphoto/%Y/%m/%d/', null=True, max_length=255)
+    image = models.ImageField(
+        upload_to='myphoto/%Y/%m/%d/', null=True, max_length=255)
 
     # An author is the creator of the article, usually the current logged in user.
     # I create a foreign key r/ship.
     # This r/ship can help returns all articles of a particular author.
     author = models.ForeignKey(
-        'authentication.User', on_delete=models.CASCADE, related_name='articles'
+        'authentication.User', on_delete=models.CASCADE, 
+        related_name='articles'
     )
 
     prepopulated_fields = {"slug": ("title",)}

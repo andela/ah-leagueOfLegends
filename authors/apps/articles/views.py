@@ -9,7 +9,6 @@ from rest_framework.views import APIView
 from .models import Article
 from .renderers import ArticleJSONRenderer
 from .serializers import ArticleSerializer
-from .permissions import IsCurrentUserOwnerOrReadOnly
 
 
 class ArticleViewSet(mixins.CreateModelMixin, 
