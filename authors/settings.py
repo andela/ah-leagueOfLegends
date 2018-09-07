@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
-#import dj_database_url
+import dj_database_url
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -83,18 +83,8 @@ WSGI_APPLICATION = 'authors.wsgi.application'
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
 #Postgres db settings
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('database'),
-        'USER': os.getenv('user'),
-        'PASSWORD': os.getenv('password'),
-        'HOST': os.getenv('host'),
-        'PORT': os.getenv('port'),
-    }
-}
 
-#DATABASES = dict(default = dj_database_url.config())
+DATABASES = dict(default = dj_database_url.config())
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
