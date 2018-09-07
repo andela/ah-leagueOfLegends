@@ -319,11 +319,11 @@ class ArticleTestCase(BaseTest):
                 reverse('authentication:user_login'),
                 self.user_cred1,
                 format='json')
-        token = response.data['token']
+        tokenn = response.data['token']
         # Update the article created by another user.
         # Expects to throw a 404 error
         response = self.update_article(
-            token, 'how-to-feed-your-dragon', self.testArticle1)
+            tokenn, 'how-to-feed-your-dragon', self.testArticle1)
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
