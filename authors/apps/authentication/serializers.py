@@ -214,7 +214,13 @@ class EmailSerializer(serializers.Serializer):
 
 class ResetUserPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField(max_length=255)
+    # uuid = serializers.CharField(max_length=30, required=False)
     token = serializers.CharField(max_length=255, required=False)
+    confirm_password = serializers.CharField(
+                min_length=6,
+                max_length=80,
+                write_only=True
+            )
     new_password = serializers.CharField(
                 min_length=6,
                 max_length=80,
@@ -222,6 +228,7 @@ class ResetUserPasswordSerializer(serializers.Serializer):
             )
 
     def validate(self, validated_data):
+        print('**********', validated_data)
         from django.contrib.auth.tokens import default_token_generator
         user_email = User.objects.filter(email=validated_data.get('email',
                                          None)).first()

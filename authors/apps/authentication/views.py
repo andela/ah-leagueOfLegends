@@ -133,6 +133,9 @@ class UserForgetPasswordView(APIView):
         from authors.apps.core.email_with_celery import SendEmail
         serializer = EmailSerializer(data=request.data)
         if serializer.is_valid():
+            serialized_email = serializer.data.get('email', None)
+            user_email = get_user_model().objects.\
+                filter(email=serialized_email).first()
             reset_link = 'http://' + request.META['HTTP_HOST'] + \
                 '/api/auth/' + serializer.data['token']
             from django.conf import settings
@@ -140,6 +143,8 @@ class UserForgetPasswordView(APIView):
                 template='reset_pass.html',
                 context={
                     'reset_url': reset_link,
+                    'uid': urlsafe_base64_encode(force_bytes(user_email.pk)
+                                                 ).decode("utf-8"),
                     'email': serializer.data['email'],
                     'token': serializer.data['token']
                  },
@@ -155,8 +160,18 @@ class ResetPasswordLinkView(APIView):
     permission_classes = (AllowAny,)
     serializer_class = ResetUserPasswordSerializer
 
-    def put(self, request):
-        serializer = ResetUserPasswordSerializer(data=request.data)
+    def put(self, request, token):
+        print('#########', request.data)
+        import json
+        # import pdb; pdb.set_trace()
+        # import json
+        # output_dict = json.loads(json.dumps(request.data))
+        # print(output_dict)
+        data = json.loads(json.dumps(request.data))
+        # data['uidb64'] = uidb64
+        data['token'] = token
+        print(data)
+        serializer = self.serializer_class(data=data)
         if serializer.is_valid():
             msg = f'Password Successfull Reset'
             return Response({'message': msg}, status=status.HTTP_201_CREATED)

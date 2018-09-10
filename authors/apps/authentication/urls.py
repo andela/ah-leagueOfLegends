@@ -14,7 +14,8 @@ urlpatterns = [
          views.VerifyAPIView.as_view(), name='verify'),
     path('users/forgot_password/', views.UserForgetPasswordView.as_view(),
          name='forgot_pass'),
-    path('users/reset_password/', views.ResetPasswordLinkView.as_view(),
+    path('users/reset_password/<token>/',
+         views.ResetPasswordLinkView.as_view(),
          name='reset_password')
 
 ]
