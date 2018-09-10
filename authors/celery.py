@@ -1,12 +1,6 @@
-# import os
-# from celery import Celery
-
-# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'authors.settings')
-
-# Creating an instance of celery
-# app = Celery('authors', broker_connection_max_retries='1')
-# app.config_from_object('django.conf:settings', namespace='CELERY')
-# app.autodiscover_tasks()
+'''
+Celery email sending implementation
+'''
 from __future__ import absolute_import
 
 import os
