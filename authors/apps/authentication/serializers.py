@@ -69,12 +69,12 @@ class RegistrationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "Create a password with at least one special character.")
         return data
-    password = serializers.CharField(
-        max_length=128,
-        min_length=8,
-        write_only=True
-    )
-    token = serializers.CharField(max_length=255, read_only=True)
+    # password = serializers.CharField(
+    #     max_length=128,
+    #     min_length=8,
+    #     write_only=True
+    # )
+    # token = serializers.CharField(max_length=255, read_only=True)
 
     # The client should not be able to send a token along with a registration
     # request. Making `token` read-only handles that for us.

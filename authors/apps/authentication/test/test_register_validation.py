@@ -11,7 +11,6 @@ class UserAuthenticationTestCase(BaseTest):
                 "email": email,
                 "username": username,
                 "password": password
-
             }
         }
         return credentials
