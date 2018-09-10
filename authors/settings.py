@@ -157,10 +157,10 @@ REST_FRAMEWORK = {
 }
 
 EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'authorshaven35@gmail.com'
-EMAIL_HOST_PASSWORD = 'CIT-221-062/2014'
-EMAIL_PORT = 587
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_PORT = os.getenv('EMAIL_PORT')
 
 CELERY_BROKER_URL = 'amqp://localhost'  # Add a broker where the messages are
                                         # are goin to be stored
