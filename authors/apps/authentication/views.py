@@ -193,7 +193,7 @@ class ResetPasswordLinkView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 class SocialAuth(CreateAPIView):
     """
-    Allows for social signup and login using Google and Facebook
+    Allows for social signup and login using Google, Facebook and GitHub
     """
     permission_classes = (AllowAny,)
     serializer_class = SocialAuthSerializer
@@ -203,13 +203,13 @@ class SocialAuth(CreateAPIView):
         """
         Receives the access_token and provider from the request,
         once authentication is comlpete, it creates a new user record
-        if it does exist already. The user's information (username, email and image)
+        if it does exist already. The user's information (username and email)
         are saved and the user is provided with a JWT token for authorization when
         using our API.
         """
         # Get the access_token and provider from request
         # the access_token is provided by the particular provider
-        # which in our case is either 'google-oauth2' or 'facebook'
+        # which in our case is 'google-oauth2', 'facebook', 'github'
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         provider = serializer.data.get('provider')
