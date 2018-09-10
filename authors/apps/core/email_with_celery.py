@@ -1,3 +1,7 @@
+'''
+Send email implementation using celery
+'''
+
 from django.template.loader import render_to_string
 # This File Contains celery tasks,
 # Also the celery file we created in the root will collect all tasks defined
