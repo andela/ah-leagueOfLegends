@@ -51,8 +51,6 @@ class RegistrationAPIView(APIView):
                 e_to=[user['email'], ],
                 e_from=EMAIL_HOST_USER,
         ).send()
-        print(request.data)
-
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
@@ -164,7 +162,6 @@ class ResetPasswordLinkView(APIView):
         import json
         data = json.loads(json.dumps(request.data))
         data['token'] = token
-        print(data)
         serializer = self.serializer_class(data=data)
         if serializer.is_valid():
             msg = f'Password Successfull Reset'

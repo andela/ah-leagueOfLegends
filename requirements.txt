@@ -1,13 +1,21 @@
 amqp==2.3.2
 astroid==2.0.4
+atomicwrites==1.2.0
+attrs==18.1.0
+billiard==3.5.0.4
+celery==4.2.1
 certifi==2018.8.24
 chardet==3.0.4
 coverage==4.5.1
+<<<<<<< HEAD
 coveralls==1.5.0
 atomicwrites==1.2.0
 attrs==18.1.0
 billiard==3.5.0.4
 celery==4.2.1
+=======
+coveralls==1.4.0
+>>>>>>> c85c448... [Chore #159965471] Update requirements.txt
 dj-database-url==0.5.0
 Django==2.1
 django-cors-middleware==1.3.1
@@ -21,10 +29,10 @@ isort==4.3.4
 kombu==4.2.1
 lazy-object-proxy==1.3.1
 mccabe==0.6.1
-Pillow==2.2.1
+more-itertools==4.3.0
+pluggy==0.7.1
 psycopg2==2.7.5
 more-itertools==4.3.0
-Pillow==5.2.0
 pluggy==0.7.1
 psycopg2==2.7.5
 psycopg2-binary==2.7.5
