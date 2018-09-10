@@ -15,6 +15,14 @@ class BaseTest(APITestCase):
             }
         }
 
+        self.user_cred1 = {
+            "user": {
+                    "email": "jake@jakerr.jake",
+                    "username": "jakerrrrrr",
+                    "password": "J!ake123456"
+                }
+        }
+
         self.user_cred_wrong_pass = {
             "user": {
                     "email": "jake@jake.jake",
@@ -45,6 +53,22 @@ class BaseTest(APITestCase):
                     "username": "",
                     "password": ""
                 }
+        }
+
+        self.testArticle = {
+            "article": {
+                "title": "How to feed your dragon",
+                "description": "Wanna know how?",
+                "body": "You don't believe?",
+            }
+        }
+
+        self.testArticle1 = {
+            "article": {
+                "title": "How to train your dragon",
+                "description": "Ever wonder how?",
+                "body": "You have to believe",
+            }
         }
 
     def register_user(self):
