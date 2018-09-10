@@ -161,7 +161,6 @@ class ResetPasswordLinkView(APIView):
     serializer_class = ResetUserPasswordSerializer
 
     def put(self, request, token):
-        print('#########', request.data)
         import json
         data = json.loads(json.dumps(request.data))
         data['token'] = token
