@@ -163,12 +163,7 @@ class ResetPasswordLinkView(APIView):
     def put(self, request, token):
         print('#########', request.data)
         import json
-        # import pdb; pdb.set_trace()
-        # import json
-        # output_dict = json.loads(json.dumps(request.data))
-        # print(output_dict)
         data = json.loads(json.dumps(request.data))
-        # data['uidb64'] = uidb64
         data['token'] = token
         print(data)
         serializer = self.serializer_class(data=data)

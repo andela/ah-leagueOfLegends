@@ -228,7 +228,10 @@ class ResetUserPasswordSerializer(serializers.Serializer):
             )
 
     def validate(self, validated_data):
-        print('**********', validated_data)
+        if validated_data['confirm_password'] != validated_data['new_password']:
+            raise serializers.ValidationError(
+                "Passwords Dont Match"
+            )
         from django.contrib.auth.tokens import default_token_generator
         user_email = User.objects.filter(email=validated_data.get('email',
                                          None)).first()
