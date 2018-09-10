@@ -49,7 +49,8 @@ class ArticleViewSet(mixins.CreateModelMixin,
         serializer.is_valid(raise_exception=True)
         serializer.save(author=request.user)
 
-        return Response(serializer.data, 
+        return Response(serializer.data,\
+        
             status=status.HTTP_201_CREATED)
 
     def list(self, request):
@@ -87,7 +88,8 @@ class ArticleViewSet(mixins.CreateModelMixin,
 
         serializer = self.serializer_class(article)
 
-        return Response({'article': serializer.data}, status=status.HTTP_200_OK)
+        return Response(
+            {'article': serializer.data}, status=status.HTTP_200_OK)
 
     def update(self, request, slug):
 
@@ -116,7 +118,8 @@ class ArticleViewSet(mixins.CreateModelMixin,
 
         if request.user != article.author:
 
-            return Response({'message': 'You can only update your article'},
+            return Response(
+                {'message': 'You can only update your article'},
 
                 status=status.HTTP_401_UNAUTHORIZED)
 
@@ -147,6 +150,7 @@ class ArticleViewSet(mixins.CreateModelMixin,
                 status=status.HTTP_401_UNAUTHORIZED)
 
         if article.delete(): 
-            return Response({'message': 'You have successfully deleted the article'},
+            return Response(
+                {'message': 'You have successfully deleted the article'},
                 status=status.HTTP_200_OK)
         

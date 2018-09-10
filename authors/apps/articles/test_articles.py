@@ -91,7 +91,8 @@ class ArticleTestCase(BaseTest):
 
         response = self.create_article(token, article)
 
-        self.assertEquals(status.HTTP_403_FORBIDDEN, response.status_code)
+        self.assertEquals(
+            status.HTTP_403_FORBIDDEN, response.status_code)
 
     def test_create_article_with_empty_data(self):
 
@@ -116,7 +117,8 @@ class ArticleTestCase(BaseTest):
 
         response = self.create_article(token, article)
 
-        self.assertEquals(status.HTTP_400_BAD_REQUEST, response.status_code)
+        self.assertEquals(
+            status.HTTP_400_BAD_REQUEST, response.status_code)
 
     def test_any_user_can_get_articles(self):
         """
@@ -177,7 +179,8 @@ class ArticleTestCase(BaseTest):
                   }
 
         response = self.create_article(token, article)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(
+            response.status_code, status.HTTP_403_FORBIDDEN)
 
 
 
@@ -198,11 +201,13 @@ class ArticleTestCase(BaseTest):
                 format='json')
         token = response.data['token']
         response = self.create_article(token, self.testArticle)
-        self.assertEquals(status.HTTP_201_CREATED, response.status_code)
+        self.assertEquals(
+            status.HTTP_201_CREATED, response.status_code)
         # Update the created article
         response = self.update_article(
             token, 'how-to-feed-your-dragon', self.testArticle1)
-        self.assertIn('how-to-train-your-dragon', response.content.decode())
+        self.assertIn(
+            'how-to-train-your-dragon', response.content.decode())
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
@@ -276,7 +281,8 @@ class ArticleTestCase(BaseTest):
         # Expects to throw a 404 error
         response = self.delete_article(token, 'how-to-feed-your-dragon')
 
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(
+            response.status_code, status.HTTP_401_UNAUTHORIZED)
         
 
     def test_user_update_article_not_author(self):
@@ -326,7 +332,8 @@ class ArticleTestCase(BaseTest):
         response = self.update_article(
             tokenn, 'how-to-feed-your-dragon', self.testArticle1)
 
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(
+            response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_user_update_article_not_found(self):
 
@@ -365,7 +372,8 @@ class ArticleTestCase(BaseTest):
         response = self.update_article(
             token, 'how-to-feed-your-dragonn', self.testArticle1)
 
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(
+            response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_user_delete_article_not_found(self):
 
