@@ -19,6 +19,7 @@ class SocialAuthenticationTests(APITestCase):
         access_token_secret = "UFlDOMdDhUnzNXkQW4NArKzvdJPmxPrDSyXJiQwoipZCl"
         data = {"provider": "twitter", "access_token": access_token, "access_token_secret": access_token_secret}
         response = self.client.post(self.auth_url, data=data)
+        print(response.data)
         self.assertEqual(response.status_code, 200)
 
     def test_missing_access_token(self):
