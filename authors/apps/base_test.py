@@ -9,6 +9,8 @@ class BaseTest(APITestCase):
         CELERY_TASK_ALWAYS_EAGER = True
         CELERY_TASK_EAGER_PROPOGATES = True
         self.SIGN_UP_URL = '/api/users/'
+        self.PROFILE_URL = '/api/profiles/'
+        self.LOG_IN_URL  = '/api/users/login/'
 
         self.user_cred = {
             "user": {
@@ -64,7 +66,7 @@ class BaseTest(APITestCase):
                 "description": "Wanna know how?",
                 "body": "You don't believe?",
             }
-        }
+        } 
 
         self.testArticle1 = {
             "article": {
@@ -73,17 +75,24 @@ class BaseTest(APITestCase):
                 "body": "You have to believe",
             }
         }
-
+        self.user_cred_bio = {
+            "user": {
+                "bio":"I love testing"
+            }
+        }
     def register_user(self):
         return self.client.post(
                self.SIGN_UP_URL,
                self.user_cred,
                format='json'
         )
-    
+    def get_profile(self,username):
+        return self.client.get(
+               self.PROFILE_URL + str(username)
+        )    
     def login_user(self):
         return self.client.post(
-               self.SIGN_UP_URL,
+               self.LOG_IN_URL,
                self.user_cred,
                format='json'
         )
