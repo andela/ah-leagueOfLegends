@@ -23,7 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('authors.apps.authentication.urls')),
     path('api/', include('authors.apps.articles.urls', namespace='articles')),
-    path('api/profiles', include('authors.apps.profiles.urls'))
+    path('api/profiles', include('authors.apps.profiles.urls')),
     path('oauth/', include('social_django.urls')),
     #path('oauth/', include('social_django.urls')),
 
