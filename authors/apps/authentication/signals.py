@@ -8,6 +8,7 @@ from .models import User
 
 @receiver(post_save, sender=User)
 def save_profile(sender, instance, created, **kwargs):
+    """Creates a Profile instancs upon User instantiation"""
     if created:
         profile = Profile(user=instance)
         profile.image = generate_avatar()
