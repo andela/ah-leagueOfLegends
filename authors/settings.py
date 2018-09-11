@@ -135,6 +135,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 CORS_ORIGIN_WHITELIST = (
     '0.0.0.0:4000',
     'localhost:4000',
+    'ah-leagueoflegends-staging.herokuapp.com'
 )
 
 # Tell Django about the custom `User` model we created. The string
