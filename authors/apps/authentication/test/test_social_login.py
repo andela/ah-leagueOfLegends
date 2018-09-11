@@ -1,5 +1,6 @@
 from django.urls import reverse
 from rest_framework.test import APITestCase, APIClient
+from __future__ import unicode_literals
 
 
 class SocialAuthenticationTests(APITestCase):
@@ -20,7 +21,7 @@ class SocialAuthenticationTests(APITestCase):
         data = {"provider": "twitter", "access_token": access_token, "access_token_secret": access_token_secret}
         response = self.client.post(self.auth_url, data=data)
         print(response.data)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['username'], 'Teddy84453888')
 
     def test_missing_access_token(self):
         """
