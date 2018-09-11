@@ -23,14 +23,11 @@ from .renderers import UserJSONRenderer
 from .serializers import (
     LoginSerializer, RegistrationSerializer, UserSerializer, SocialAuthSerializer
 )
-from authors.apps.authentication.models import User
 
 # social_auth
-import requests
 from social_core.exceptions import MissingBackend
-from requests.exceptions import HTTPError
 from social_django.utils import load_backend, load_strategy
-from authors.settings import SECRET_KEY
+from social.backends.oauth import BaseOAuth1, BaseOAuth2
 
 
 class RegistrationAPIView(APIView):
@@ -216,13 +213,24 @@ class SocialAuth(CreateAPIView):
 
         access_token = serializer.data.get('access_token')
         authed_user = request.user if not request.user.is_anonymous else None
-        print(authed_user)
         # strategy sets up the required custom configuration for working with Django
         strategy = load_strategy(request)
         try:
             # Loads backends defined on SOCIAL_AUTH_AUTHENTICATION_BACKENDS,
             # checks the appropiate one by using the provider given
             backend = load_backend(strategy=strategy, name=provider, redirect_uri=None)
+            # If auth is oauth1 eg Twitter based do this
+            if isinstance(backend, BaseOAuth1):
+                # Twitter, for example, uses OAuth1 and requires that you also pass
+                # an `oauth_token_secret` with your authentication request
+                access_token = {
+                    'oauth_token': request.data['access_token'],
+                    'oauth_token_secret': request.data['access_token_secret'],
+                }
+            elif isinstance(backend, BaseOAuth2):
+                # We're using oauth's implicit grant type (usually used for web and mobile
+                # applications), so all we have to pass here is an access_token
+                access_token = request.data['access_token']
         except MissingBackend:
             return Response({
                 "errors": {
@@ -237,7 +245,6 @@ class SocialAuth(CreateAPIView):
             # If the user exists, we just authenticate the user.
             user = backend.do_auth(access_token, user=authed_user)
         except BaseException as error:
-            print("Braah")
             return Response({
                 "error": str(error),
             }, status=status.HTTP_400_BAD_REQUEST)
