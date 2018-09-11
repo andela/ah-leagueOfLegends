@@ -1,10 +1,13 @@
 from rest_framework.test import APIClient, APITestCase
 from django.urls import reverse
+from django.conf import settings
 
 class BaseTest(APITestCase):
     client = APIClient
 
     def setUp(self):
+        CELERY_TASK_ALWAYS_EAGER = True
+        CELERY_TASK_EAGER_PROPOGATES = True
         self.SIGN_UP_URL = '/api/users/'
 
         self.user_cred = {

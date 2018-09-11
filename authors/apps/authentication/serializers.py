@@ -197,6 +197,9 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class EmailSerializer(serializers.Serializer):
+    '''
+    Handles serialization of emails and returns a token generated \from the email
+    '''
     email = serializers.EmailField(max_length=255)
     token = serializers.CharField(max_length=255, required=False)
 
