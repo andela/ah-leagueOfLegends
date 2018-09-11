@@ -168,6 +168,7 @@ AUTHENTICATION_BACKENDS = (
     'social_core.backends.facebook.FacebookOAuth2',
     'social_core.backends.google.GoogleOAuth2',
     'social_core.backends.github.GithubOAuth2',
+    'social_core.backends.twitter.TwitterOAuth',
     'django.contrib.auth.backends.ModelBackend',
 )
 # Google configuration
@@ -178,6 +179,7 @@ SOCIAL_AUTH_GOOGLE_OAUTH_SCOPE = ['email', 'username']
 # Facebook configuration
 SOCIAL_AUTH_FACEBOOK_KEY = os.getenv('FACEBOOK_KEY')
 SOCIAL_AUTH_FACEBOOK_SECRET = os.getenv('FACEBOOK_SECRET')
+# Scope
 SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
 SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {'fields': 'id, name, email', }
 FACEBOOK_EXTENDED_PERMISSIONS = ['email']
@@ -187,6 +189,12 @@ SOCIAL_AUTH_GitHub_OAUTH2_KEY = os.getenv('GITHUB_KEY')
 SOCIAL_AUTH_GitHub_OAUTH2_SECRET = os.getenv('GITHUB_SECRET')
 # Scope
 SOCIAL_AUTH_GitHub_OAUTH_SCOPE = ['email', 'username']
+# Twitter configuration
+SOCIAL_AUTH_TWITTER_KEY = os.getenv('TWITTER_KEY')
+SOCIAL_AUTH_TWITTER_SECRET = os.getenv('TWITTER_SECRET')
+# Scope
+SOCIAL_AUTH_TWITTER_OAUTH_SCOPE = ['email', 'username']
+
 SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.social_auth.social_details',
     'social_core.pipeline.social_auth.social_uid',

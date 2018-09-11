@@ -216,6 +216,7 @@ class SocialAuth(CreateAPIView):
 
         access_token = serializer.data.get('access_token')
         authed_user = request.user if not request.user.is_anonymous else None
+        print(authed_user)
         # strategy sets up the required custom configuration for working with Django
         strategy = load_strategy(request)
         try:
@@ -236,6 +237,7 @@ class SocialAuth(CreateAPIView):
             # If the user exists, we just authenticate the user.
             user = backend.do_auth(access_token, user=authed_user)
         except BaseException as error:
+            print("Braah")
             return Response({
                 "error": str(error),
             }, status=status.HTTP_400_BAD_REQUEST)
