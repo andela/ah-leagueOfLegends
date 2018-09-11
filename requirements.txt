@@ -1,6 +1,6 @@
 amqp==2.3.2
 astroid==2.0.4
-atomicrites==1.2.0
+atomicwrites==1.2.0
 attrs==18.1.0
 billiard==3.5.0.4
 celery==4.2.1
@@ -9,7 +9,7 @@ chardet==3.0.4
 coverage==4.5.1
 coveralls==1.5.0
 atomicwrites==1.2.0
-attrs==18.1.0
+attrs==18.1.0i
 billiard==3.5.0.4
 celery==4.2.1
 dj-database-url==0.5.0
