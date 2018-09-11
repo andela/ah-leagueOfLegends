@@ -25,7 +25,6 @@ urlpatterns = [
     path('api/', include('authors.apps.articles.urls', namespace='articles')),
     path('api/profiles', include('authors.apps.profiles.urls')),
     path('oauth/', include('social_django.urls')),
-    #path('oauth/', include('social_django.urls')),
 
 ]
 
