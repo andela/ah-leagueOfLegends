@@ -1,6 +1,7 @@
+from __future__ import unicode_literals
 from django.urls import reverse
 from rest_framework.test import APITestCase, APIClient
-from __future__ import unicode_literals
+
 
 
 class SocialAuthenticationTests(APITestCase):
