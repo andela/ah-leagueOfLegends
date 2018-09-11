@@ -9,6 +9,7 @@ from rest_framework.views import APIView
 from .models import Article
 from .renderers import ArticleJSONRenderer
 from .serializers import ArticleSerializer
+from rest_framework.pagination import LimitOffsetPagination
 
 
 class ArticleViewSet(mixins.CreateModelMixin, 
@@ -25,6 +26,7 @@ class ArticleViewSet(mixins.CreateModelMixin,
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (ArticleJSONRenderer,)
     serializer_class = ArticleSerializer
+    pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
         queryset = self.queryset
@@ -61,7 +63,7 @@ class ArticleViewSet(mixins.CreateModelMixin,
         '''
 
         serializer_context = {'request': request}
-        page = self.paginate_queryset(self.get_queryset())
+        page = self.paginate_queryset(self.queryset)
 
         serializer = self.serializer_class(
             page,

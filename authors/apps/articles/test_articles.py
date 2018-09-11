@@ -153,6 +153,32 @@ class ArticleTestCase(BaseTest):
         response = self.client.get('/api/articles')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_any_user_can_get_paginated_articles(self):
+        """
+        Test user can view paginated data
+        """
+        # Signs up User
+        response = self.client.post(
+               self.SIGN_UP_URL,
+               self.user_cred,
+               format='json')
+        # Signs in User
+        response = self.client.post(
+               reverse('authentication:user_login'),
+               self.user_cred,
+               format='json')
+        token = response.data['token']
+        article= self.testArticle
+        # runs create article 21 times so as to create multiple articles
+        for i in range(0, 21):
+            response = self.create_article(token, article)
+        else:
+            pass
+
+        response = self.client.get('/api/articles')
+        self.assertEquals(response.data['count'], 21)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
 
     def test_unverified_user_cannot_create_article(self):
         """
