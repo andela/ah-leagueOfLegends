@@ -11,6 +11,7 @@ omit =
     */authors/apps/authentication/test/__init__.py
     */authors/apps/authentication/test/base.py
     */authors/apps/authentication/test/test_auth.py
+    */authors/apps/authentication/test/test_social_login.py
     */authors/apps/authentication/test/test_models.py
     */authors/apps/authentication/test/test_register_validation.py
     */authors/apps/base_test.py
