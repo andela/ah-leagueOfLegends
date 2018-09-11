@@ -23,7 +23,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['ah-leagueoflegends-staging.herokuapp.com']
 
 # Application definition
 
@@ -135,7 +135,6 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 CORS_ORIGIN_WHITELIST = (
     '0.0.0.0:4000',
     'localhost:4000',
-    'ah-leagueoflegends-staging.herokuapp.com'
 )
 
 # Tell Django about the custom `User` model we created. The string
