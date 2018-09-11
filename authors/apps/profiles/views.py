@@ -10,6 +10,7 @@ from .serializers import ProfileSerializer
 
 
 class ProfileRetrieveAPIView(RetrieveAPIView):
+    """ This Class represents GET profile endpoint"""
     permission_classes = (AllowAny,)
     renderer_classes = (ProfileJSONRenderer,)
     serializer_class = ProfileSerializer
