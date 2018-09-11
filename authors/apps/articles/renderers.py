@@ -2,39 +2,24 @@ from rest_framework.renderers import JSONRenderer
 import json
 
 
-class AuthorsJSONRenderer(JSONRenderer):
+class ArticleJSONRenderer(JSONRenderer):
+    object_label = 'article'
     charset = 'utf-8'
-    object_label = 'object'
-    pagination_object_label = 'objects'
-    pagination_object_count = 'count'
+    # pagination_object_label = 'articles'
+    # pagination_count_label = 'articlesCount'
 
     def render(self, data, media_type=None, renderer_context=None):
-        if data.get('results', None) is not None:
+        """
+        Render the articles in a structured manner for the end user.
+        """
+        if data is not None:
+            if len(data) <= 1:
+                return json.dumps({
+                    'article': data
+                })
             return json.dumps({
-                self.pagination_count_label: data['count'],
-                self.pagination_object_label: data['results'],
+                'articles': data
             })
-
-        # If the view throws an error (such as the user can't be authenticated
-        # default json handler should handle
-
-        elif data.get('errors', None) is not None:
-            return super(AuthorsJSONRenderer, self).render(data)
-
-        else:
-            return json.dumps({
-                self.object_label: data
-            })
-
-
-class ArticleJSONRenderer(AuthorsJSONRenderer):
-    object_label = 'article'
-    pagination_object_label = 'articles'
-    pagination_count_label = 'articlesCount'
-
-
-
-
-
-
-
+        return json.dumps({
+            'article': 'No article found.'
+        })
