@@ -169,13 +169,13 @@ class ArticleTestCase(BaseTest):
                format='json')
         token = response.data['token']
         article= self.testArticle
+        # runs create article 21 times so as to create multiple articles
         for i in range(0, 21):
             response = self.create_article(token, article)
         else:
             pass
 
         response = self.client.get('/api/articles')
-        print(response.data)
         self.assertEquals(response.data['count'], 21)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
