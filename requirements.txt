@@ -28,7 +28,6 @@ mccabe==0.6.1
 psycopg2==2.7.5
 more-itertools==4.3.0
 pluggy==0.7.1
-Pillow==2.2.1
 psycopg2-binary==2.7.5
 py==1.6.0
 PyJWT==1.6.4
