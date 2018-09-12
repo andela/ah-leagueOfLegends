@@ -1,5 +1,5 @@
 {% autoescape off %}
 Welcome {{user.username}} to authors haven,
 Please click on the link below to confirm your registration to  Authors Haven
-<a href= http://127.0.0.1:8000{% url 'authentication:verify' uidb64=uid token=token %} >Verify account</a>
+<a href= http://{{ domain }}{% url 'authentication:verify' uidb64=uid token=token %} >Verify account</a>
 {% endautoescape %}

@@ -8,6 +8,7 @@ from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.http import HttpResponse
 from django.contrib.auth import get_user_model
+from django.contrib.sites.shortcuts import get_current_site
 
 from .models import User
 from .renderers import UserJSONRenderer
@@ -49,12 +50,14 @@ class RegistrationAPIView(APIView):
         serialized_email = serializer.data.get('email', None)
         user_email = get_user_model().objects.\
             filter(email=serialized_email).first()
+        current_site = get_current_site(request)
         SendEmail(
                 template='verify_email.html',
                 context={
                     'user': user,
                     'uid': urlsafe_base64_encode(force_bytes(user_email.pk)
                                                  ).decode("utf-8"),
+                    'domain': current_site.domain,
                     'token': authcheck_token.make_token(user_email)},
                 subject='Authors Haven Verification',
                 e_to=[user['email'], ],
@@ -155,7 +158,8 @@ class UserForgetPasswordView(APIView):
             serialized_email = serializer.data.get('email', None)
             user_email = get_user_model().objects.\
                 filter(email=serialized_email).first()
-            reset_link = 'http://' + request.META['HTTP_HOST'] + \
+            current_site = get_current_site(request)
+            reset_link = 'http://' + current_site.domain + \
                 '/api/auth/' + serializer.data['token']
             from django.conf import settings
             SendEmail(
@@ -164,6 +168,7 @@ class UserForgetPasswordView(APIView):
                     'reset_url': reset_link,
                     'uid': urlsafe_base64_encode(force_bytes(user_email.pk)
                                                  ).decode("utf-8"),
+                    'domain': current_site.domain,
                     'email': serializer.data['email'],
                     'token': serializer.data['token']
                  },
