@@ -5,6 +5,7 @@ from django.contrib.postgres.fields import ArrayField
 from authors.apps.authentication.models import User
 
 
+
 class TimestampedModel(models.Model):
     ''' Model to take care of when an instance occurs in the database
     Appends created at and updated at fields using datetime.now()'''
@@ -73,7 +74,13 @@ class Article(TimestampedModel):
 
         return self.title
 
+class Comment(TimestampedModel):
+    '''
+    Comment class implementation
+    '''
+    body = models.TextField()
+    author = models.ForeignKey('authentication.User', on_delete=models.CASCADE)
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
 
-
-
-
+    def __str__(self):
+        return self.body
