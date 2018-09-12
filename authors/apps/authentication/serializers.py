@@ -70,11 +70,14 @@ class RegistrationSerializer(serializers.ModelSerializer):
                 "Create a password with at least one special character.")
         return data
 
+    # The client should not be able to send a token along with a registration
+    # request. Making `token` read-only handles that for us.
+
     class Meta:
         model = User
         # List all of the fields that could possibly be included in a request
         # or response, including fields specified explicitly above.
-        fields = ['email', 'username', 'password']
+        fields = ['email', 'username', 'password', 'token']
 
     def create(self, validated_data):
         # Use the `create_user` method we wrote earlier to create a new user.
@@ -139,7 +142,7 @@ class LoginSerializer(serializers.Serializer):
         return {
             'email': user.email,
             'username': user.username,
-            'token':user.token
+            'token': user.token
 
         }
 
@@ -260,3 +263,7 @@ class ResetUserPasswordSerializer(serializers.Serializer):
         user_email.set_password(validated_data.get('new_password', None))
         user_email.save()
         return validated_data
+class SocialAuthSerializer(serializers.Serializer):
+    """Serializers social_auth requests"""
+    provider = serializers.CharField(max_length=255, required=True)
+    access_token = serializers.CharField(max_length=1024, required=True, trim_whitespace=True)

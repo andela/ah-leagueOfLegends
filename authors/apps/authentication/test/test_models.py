@@ -1,6 +1,7 @@
 from django.test import TestCase
 from ..models import User
 
+
 class UserTest(TestCase):
     def setUp(self):
         User.objects.create_user("author", "author.me@gmail.com", "letmein")
