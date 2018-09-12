@@ -267,6 +267,9 @@ class ArticleFilter(filters.FilterSet):
             },
         }
 class ArticleSearchList(generics.ListAPIView):
+    """ 
+    Implements class to enable searching and filtering
+    """
 
     permission_classes = (IsAuthenticatedOrReadOnly, )
     search_list = ['title', 'body',
