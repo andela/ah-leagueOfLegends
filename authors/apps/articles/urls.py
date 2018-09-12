@@ -4,7 +4,8 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 from .views import (ArticleViewSet, LikeAPIView, DisLikeAPIView,
-                    ArticleSearchList, ArticlesFavoriteAPIView, )
+                    ArticleSearchList, ArticlesFavoriteAPIView, CommentsListCreateAPIView,
+                      CommentRetrieveUpdateDestroy)
 
 router = DefaultRouter(trailing_slash=False)
 router.register(r'articles', ArticleViewSet, base_name="fetch_articles")
@@ -18,5 +19,8 @@ urlpatterns = [
     url(r'^search/articles$', ArticleSearchList.as_view(), name="search"),
     url(r'^articles/(?P<article_slug>[-\w]+)/favorite/?$',
      ArticlesFavoriteAPIView.as_view()),
+
+    path('articles/<slug>/comments', CommentsListCreateAPIView.as_view()),
+    path('articles/<slug>/comments/<pk>', CommentRetrieveUpdateDestroy.as_view())
+
 ]
-  
