@@ -12,5 +12,21 @@ class Profile(TimestampedModel):
     bio = models.TextField(blank=True)
     image = models.URLField(blank=True)
 
+    favorites = models.ManyToManyField('articles.Article',
+                                       related_name='favorited_by'
+                                       )
+
     def __str__(self):
         return self.user.username
+
+    def favorite(self, article):
+        """Favorites an article if we favorited it."""
+        self.favorites.add(article)
+
+    def unfavorite(self, article):
+        """Unfavorites an article if we've already favorited it."""
+        self.favorites.remove(article)
+
+    def has_favorited(self, article):
+        """Returns True if we have favorited an article; else False."""
+        return self.favorites.filter(pk=article.pk).exists()
