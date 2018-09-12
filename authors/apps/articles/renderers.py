@@ -23,3 +23,22 @@ class ArticleJSONRenderer(JSONRenderer):
         return json.dumps({
             'article': 'No article found.'
         })
+
+class CommentJSONRenderer(JSONRenderer):
+    object_label = 'comment'
+
+    def render(self, data, media_type=None, renderer_context=None):
+        """
+        Render comments
+        """
+        if data is not None:
+            if len(data) <= 1:
+                return json.dumps({
+                    'comment': data
+                })
+            return json.dumps({
+                'comments': data
+            })
+        return json.dumps({
+            'comment': 'No comment found.'
+        })
