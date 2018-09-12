@@ -10,7 +10,20 @@ from .models import Article
 from .renderers import ArticleJSONRenderer
 from .serializers import ArticleSerializer
 from rest_framework.pagination import LimitOffsetPagination
+from django.db.models import Q
+from django.conf import settings
+from django.contrib.postgres.search import TrigramSimilarity
+from django_filters.rest_framework import DjangoFilterBackend
+import django_filters
+from rest_framework.filters import SearchFilter
+from django.views.generic import ListView
+import django_filters
+from django_filters import rest_framework as filters
+from django.contrib.postgres.fields import ArrayField
 
+
+
+#from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 
 class ArticleViewSet(mixins.CreateModelMixin, 
                     mixins.ListModelMixin,
@@ -155,4 +168,48 @@ class ArticleViewSet(mixins.CreateModelMixin,
             return Response(
                 {'message': 'You have successfully deleted the article'},
                 status=status.HTTP_200_OK)
-        
+    
+
+
+class ArticleFilter(filters.FilterSet):
+    """
+    Class creates a custom filter class for articles,
+    for getting dynamic queries from the url
+    """
+    title = filters.CharFilter(field_name='title', lookup_expr='icontains')
+    description = filters.CharFilter(
+        field_name='description', lookup_expr='icontains')
+    body = filters.CharFilter(field_name='body', lookup_expr='icontains')
+    author__username = filters.CharFilter(
+        field_name='author__username', lookup_expr='icontains')
+
+    class Meta:
+        """
+        This class describes the fields to be used in the search.
+        The ArrayField has also been over-ridden
+        """
+        model = Article
+        fields = [
+            'title', 'description', 'body', 'author__username', 'tagList'
+        ]
+        filter_overrides = {
+            ArrayField: {
+                'filter_class': django_filters.CharFilter,
+                'extra': lambda f: {
+                    'lookup_expr': 'icontains', },
+            },
+        }
+class ArticleSearchList(generics.ListAPIView):
+
+    permission_classes = (IsAuthenticatedOrReadOnly, )
+    search_list = ['title', 'body',
+                   'description', 'author__username', 'tagList']
+    filter_list = ['title', 'author__username', 'tagList',]
+    queryset = Article.objects.all()
+    serializer_class = ArticleSerializer
+    filter_backends = (DjangoFilterBackend, SearchFilter, )
+    filter_fields = filter_list
+    search_fields = search_list
+    filterset_class = ArticleFilter
+    
+
