@@ -38,6 +38,32 @@ class ArticleTestCase(BaseTest):
             HTTP_AUTHORIZATION='Bearer ' + token,
         )
 
+    def favorite_article(self, token,slug):
+        """
+        Helper method to favorite an article
+        """
+        return self.client.post(
+            '/api/articles/' + slug +'/favorite',
+            HTTP_AUTHORIZATION='Bearer ' + token
+        )
+    def unfavorite_article(self, token,slug):
+        """
+        Helper method to favorite an article
+        """
+        return self.client.delete(
+            '/api/articles/' + slug +'/favorite',
+            HTTP_AUTHORIZATION='Bearer ' + token
+        )
+    def get_articles(self, token):
+        """
+        Helper method to get all articles after authentication
+        """
+        return self.client.get(
+            '/api/articles',
+            HTTP_AUTHORIZATION='Bearer ' + token
+        )
+
+
     def test_create_successfully(self):
         response = self.client.post(
             self.SIGN_UP_URL,
@@ -462,3 +488,205 @@ class ArticleTestCase(BaseTest):
         response = self.delete_article(token, 'how-to-feed-your-dragon')
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+    
+    def test_unauthenticated_user_cannot_favorite_article(self):
+        """ 
+        Tests whether a user who is unauthenticated cant' favorite an article 
+        """
+        response = self.client.post(
+               self.SIGN_UP_URL,
+               self.user_cred,
+               format='json')
+        response = self.client.post(
+               reverse('authentication:user_login'),
+               self.user_cred,
+               format='json')
+        token = response.data['token']
+        article= {
+                    "article": 
+                      {
+                      "title": "How to feed your dragon",
+                      "description": "Wanna know how?",
+                      "body": "You don't believe?",
+                        }
+                  }
+        response = self.create_article(token, article)
+        token = ''
+        response = self.favorite_article(token, 'how-to-feed-your-dragon')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_unauthenticated_user_cannot_unfavorite_article(self):
+        """ 
+        Tests whether a user who is unauthenticated cant' unfavorite an article 
+        """
+        response = self.client.post(
+               self.SIGN_UP_URL,
+               self.user_cred,
+               format='json')
+        response = self.client.post(
+               reverse('authentication:user_login'),
+               self.user_cred,
+               format='json')
+        token = response.data['token']
+        article= {
+                    "article": 
+                      {
+                      "title": "How to feed your dragon",
+                      "description": "Wanna know how?",
+                      "body": "You don't believe?",
+                        }
+                  }
+        response = self.create_article(token, article)
+    
+    def test_favorite_non_existent_article(self):
+        """ 
+        Tests whether a user  cant favorite a non-existent article 
+        """
+        response = self.client.post(
+               self.SIGN_UP_URL,
+               self.user_cred,
+               format='json')
+        response = self.client.post(
+               reverse('authentication:user_login'),
+               self.user_cred,
+               format='json')
+        token = response.data['token']
+        response = self.favorite_article(token, 'non-existent-slug')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+    
+    def test_unfavorite_non_existent_article(self):
+        """ 
+        Tests whether a user cant unfavorite a non-existent article 
+        """
+        response = self.client.post(
+               self.SIGN_UP_URL,
+               self.user_cred,
+               format='json')
+        response = self.client.post(
+               reverse('authentication:user_login'),
+               self.user_cred,
+               format='json')
+        token = response.data['token']
+        response = self.unfavorite_article(token, 'non-existent-slug')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_user_can_favorite_article(self):
+        """ Tests whether a user can favorite an article """
+
+        response = self.client.post(
+               self.SIGN_UP_URL,
+               self.user_cred,
+               format='json')
+        response = self.client.post(
+               reverse('authentication:user_login'),
+               self.user_cred,
+               format='json')
+        token = response.data['token']
+        article= {
+                    "article": 
+                      {
+                      "title": "How to feed your dragon",
+                      "description": "Wanna know how?",
+                      "body": "You don't believe?",
+                        }
+                  }
+
+        response = self.create_article(token, article)
+
+        # favorite the article 
+        # Expects success 200 OK
+        response = self.favorite_article(token, 'how-to-feed-your-dragon')
+        self.assertTrue(response.data['favorited'])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+    
+    def test_user_can_unfavorite_article(self):
+        """ Tests whether a user can ufavorite an article """
+
+        response = self.client.post(
+               self.SIGN_UP_URL,
+               self.user_cred,
+               format='json')
+        response = self.client.post(
+               reverse('authentication:user_login'),
+               self.user_cred,
+               format='json')
+        token = response.data['token']
+        article= {
+                    "article": 
+                      {
+                      "title": "How to feed your dragon",
+                      "description": "Wanna know how?",
+                      "body": "You don't believe?",
+                        }
+                  }
+
+        response = self.create_article(token, article)
+
+        # unfavorite the article 
+        # Expects success 200 OK
+        response = self.unfavorite_article(token, 'how-to-feed-your-dragon')
+        self.assertFalse(response.data['favorited'])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    
+    def test_articles_are_unfavorited(self):
+        """ 
+        Tests whether a all articles are ufavorited if a user retrives all 
+        articles without being authenticated
+        """
+        
+        response = self.client.post(
+               self.SIGN_UP_URL,
+               self.user_cred,
+               format='json')
+        response = self.client.post(
+               reverse('authentication:user_login'),
+               self.user_cred,
+               format='json')
+        token = response.data['token']
+        article= {
+                    "article": 
+                      {
+                      "title": "How to feed your dragon",
+                      "description": "Wanna know how?",
+                      "body": "You don't believe?",
+                        }
+                  }
+        response = self.create_article(token, article)
+
+        response = self.client.get('/api/articles')
+        # tests if the favorited field in results is False
+        self.assertFalse(response.data['results'][0]['favorited'])
+    
+    def test_articles_are_favorited(self):
+        """ 
+        Tests whether a all articles are favorited if a user retrives all 
+        articles after being authenticated
+        """
+        
+        response = self.client.post(
+               self.SIGN_UP_URL,
+               self.user_cred,
+               format='json')
+        response = self.client.post(
+               reverse('authentication:user_login'),
+               self.user_cred,
+               format='json')
+        token = response.data['token']
+        article= {
+                    "article": 
+                      {
+                      "title": "How to feed your dragon",
+                      "description": "Wanna know how?",
+                      "body": "You don't believe?",
+                        }
+                  }
+        response = self.create_article(token, article)
+        response = self.favorite_article(token, 'how-to-feed-your-dragon')
+        response = self.get_articles(token)
+        # tests if the favorited field in results is True after authentication
+        self.assertTrue(response.data['results'][0]['favorited'])
+    
+    
+
+
