@@ -193,7 +193,7 @@ class LikeAPIView(UpdateAPIView):
 
 class DisLikeAPIView(UpdateAPIView):
     queryset = Article.objects.all()
-    permission_classes = (AllowAny,)
+    permission_classes = (IsAuthenticated,)
     renderer_classes = (ArticleJSONRenderer,)
     serializer_class = ArticleSerializer
 
