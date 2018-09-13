@@ -364,7 +364,7 @@ class CommentsListCreateAPIView(generics.ListCreateAPIView):
             article = Article.objects.get(slug=slug)
         except Article.DoesNotExist:
             raise NotFound("An article with that slug does not exist")
-        context["author"] = request.user
+        serializer_context = {"author": request.user, "slug": slug}
         serializer_data = request.data.get('comment', {})
         serializer = self.serializer_class( 
                     data=serializer_data,
@@ -410,7 +410,7 @@ class CommentRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
             raise NotFound('A comment with this ID does not exist.')
 
         if comment.author.id != request.user.id:
-            return Response({"error": "you can not delete a comment that does not belong to you"})
+            return Response({"error": "you can not delete a comment that does not belong to you"}, status=status.HTTP_401_UNAUTHORIZED)
         comment.delete()
 
         return Response({"message": "Your comment has been successfully deleted"}, status=status.HTTP_200_OK)
