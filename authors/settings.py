@@ -23,7 +23,8 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['ah-leagueoflegends-staging.herokuapp.com', '10.43.198.23',
+                 '10.99.225.205', '127.0.0.1', 'herokuapp.com', '0.0.0.0']
 
 # Application definition
 
@@ -207,3 +208,5 @@ SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.social_auth.load_extra_data',
     'social_core.pipeline.user.user_details',
 )
+CELERY_BROKER_URL = 'amqp://localhost'
+
