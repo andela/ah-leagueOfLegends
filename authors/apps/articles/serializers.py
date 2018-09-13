@@ -13,6 +13,10 @@ class ArticleSerializer(serializers.ModelSerializer):
     # method_name - The name of the method on the serializer to be called
     like = serializers.SerializerMethodField(method_name='get_like_count')
     dislike = serializers.SerializerMethodField(method_name='get_dislike_count')
+    favorited = serializers.SerializerMethodField()
+    favoritesCount = serializers.SerializerMethodField(
+        method_name='get_favorites_count')
+
     # As for Django, serializers validate date 
     # then either save or return to the user 
     # via views.
@@ -41,6 +45,8 @@ class ArticleSerializer(serializers.ModelSerializer):
             'updated_at_date',
             'like',
             'dislike',
+            'favorited',
+            'favoritesCount',
         )
 
     def create(self, validated_data):
@@ -74,3 +80,15 @@ class ArticleSerializer(serializers.ModelSerializer):
         """Sets the value of dislike field to the serializer by returning the length of the dislike object."""
         # counts the number of children the dislike object has
         return obj.dislike.count()
+    
+    def get_favorited(self, instance):
+        request = self.context.get('request', None)
+        if request is None:
+            return False
+        if not request.user.is_authenticated:
+            return False
+        return request.user.profile.has_favorited(instance)
+    
+    
+    def get_favorites_count(self, instance):
+        return instance.favorited_by.count()
