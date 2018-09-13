@@ -6,7 +6,6 @@ from rest_framework.views import status
 class DislikeLikeArticleTestCase(ArticleTestCase):
     """Tests Like and Dislike articles views"""
 
-
     article = {
         "article":
             {
@@ -27,12 +26,18 @@ class DislikeLikeArticleTestCase(ArticleTestCase):
     }
 
     def test_if_user_can_like_without_authentication(self):
-        """Test if user can like without authentication"""
+        """Test if user can like article without authentication"""
         # Like an article
         response = self.client.put(path='/api/articles/how-to-train-your-dragon/like/')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(response.data['detail'], "Authentication credentials were not provided.")
-        pass
+
+    def test_if_user_can_dislike_without_authentication(self):
+        """Test if user can dislike article without authentication"""
+        # Like an article
+        response = self.client.put(path='/api/articles/how-to-train-your-dragon/dislike/')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.data['detail'], "Authentication credentials were not provided.")
 
     def test_if_user_can_like_unexisting_article(self):
         """Test if the user can like an article that does not exist"""
@@ -47,6 +52,23 @@ class DislikeLikeArticleTestCase(ArticleTestCase):
         token = res.data['token']
         # Like an article
         response = self.client.put(path='/api/articles/how-to-train-your-dragon/like/',
+                                   HTTP_AUTHORIZATION='Bearer ' + token)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data['message'], "The article does not exist.")
+
+    def test_if_user_can_dislike_unexisting_article(self):
+        """Test if the user can like an article that does not exist"""
+        # Register user
+        self.register_user()
+        # Login user
+        res = self.client.post(
+            reverse('authentication:user_login'),
+            self.user_cred,
+            format='json')
+        # Create token
+        token = res.data['token']
+        # Dislike an article
+        response = self.client.put(path='/api/articles/how-to-train-your-dragon/dislike/',
                                    HTTP_AUTHORIZATION='Bearer ' + token)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(response.data['message'], "The article does not exist.")
@@ -70,6 +92,27 @@ class DislikeLikeArticleTestCase(ArticleTestCase):
                                    HTTP_AUTHORIZATION='Bearer ' + token)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['message'], "Added to Liked articles")
+
+    def test_successful_article_disliking(self):
+        """Test a successful disliking of an article"""
+        # Register user
+        self.register_user()
+        # Login user
+        res = self.client.post(
+            reverse('authentication:user_login'),
+            self.user_cred,
+            format='json')
+
+        # Create token
+        token = res.data['token']
+        # Create article
+        response = self.create_article(token, self.article)
+        self.assertEquals(status.HTTP_201_CREATED, response.status_code)
+        # Dislike an article
+        response = self.client.put(path='/api/articles/how-to-train-your-dragon/dislike/',
+                                   HTTP_AUTHORIZATION='Bearer ' + token)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['message'], "You Dislike this Article")
 
     def test_response_of_adding_a_like_after_adding_a_dislike(self):
         """Test the response of adding a like after adding a dislike"""
@@ -96,6 +139,32 @@ class DislikeLikeArticleTestCase(ArticleTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['message'], "Removed from dislike and Added to Liked articles")
 
+    def test_response_of_adding_a_dislike_after_adding_a_like(self):
+        """Test the response of adding a dislike after adding a like """
+        # Register user
+        self.register_user()
+        # Login user
+        res = self.client.post(
+            reverse('authentication:user_login'),
+            self.user_cred,
+            format='json')
+
+        # Create token
+        token = res.data['token']
+        # Create article
+        response = self.create_article(token, self.article)
+        self.assertEquals(status.HTTP_201_CREATED, response.status_code)
+        # Like an article
+        response = self.client.put(path='/api/articles/how-to-train-your-dragon/like/',
+                                   HTTP_AUTHORIZATION='Bearer ' + token)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['message'], "Added to Liked articles")
+        # Dislike an article
+        response = self.client.put(path='/api/articles/how-to-train-your-dragon/dislike/',
+                                   HTTP_AUTHORIZATION='Bearer ' + token)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['message'], "Removed from Liked Articles and Added to Disliked articles")
+
     def test_response_of_double_liking(self):
         """Test the response of liking an article twice"""
         # Register user
@@ -120,49 +189,6 @@ class DislikeLikeArticleTestCase(ArticleTestCase):
                                    HTTP_AUTHORIZATION='Bearer ' + token)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['message'], "You no longer like this article")
-
-    def test_if_user_can_dislike_unexisting_article(self):
-        """Test if the user can like an article that does not exist"""
-        # Register user
-        self.register_user()
-        # Login user
-        res = self.client.post(
-            reverse('authentication:user_login'),
-            self.user_cred,
-            format='json')
-        # Create token
-        token = res.data['token']
-        # Dislike an article
-        response = self.client.put(path='/api/articles/how-to-train-your-dragon/dislike/',
-                                   HTTP_AUTHORIZATION='Bearer ' + token)
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        self.assertEqual(response.data['message'], "The article does not exist.")
-
-    def test_response_of_removing_like_adding_a_dislike(self):
-        """Test the response of removing a like and adding a dislike """
-        # Register user
-        self.register_user()
-        # Login user
-        res = self.client.post(
-            reverse('authentication:user_login'),
-            self.user_cred,
-            format='json')
-
-        # Create token
-        token = res.data['token']
-        # Create article
-        response = self.create_article(token, self.article)
-        self.assertEquals(status.HTTP_201_CREATED, response.status_code)
-        # Like an article
-        response = self.client.put(path='/api/articles/how-to-train-your-dragon/like/',
-                                   HTTP_AUTHORIZATION='Bearer ' + token)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['message'], "Added to Liked articles")
-        # Dislike an article
-        response = self.client.put(path='/api/articles/how-to-train-your-dragon/dislike/',
-                                   HTTP_AUTHORIZATION='Bearer ' + token)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['message'], "Removed from Liked Articles and Added to Disliked articles")
 
     def test_response_of_double_disliking(self):
         """Test the response of disliking an article twice"""
@@ -189,24 +215,3 @@ class DislikeLikeArticleTestCase(ArticleTestCase):
                                    HTTP_AUTHORIZATION='Bearer ' + token)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['message'], "You no longer dislike this article")
-
-    def test_successful_article_disliking(self):
-        """Test a successful disliking of an article"""
-        # Register user
-        self.register_user()
-        # Login user
-        res = self.client.post(
-            reverse('authentication:user_login'),
-            self.user_cred,
-            format='json')
-
-        # Create token
-        token = res.data['token']
-        # Create article
-        response = self.create_article(token, self.article)
-        self.assertEquals(status.HTTP_201_CREATED, response.status_code)
-        # Dislike an article
-        response = self.client.put(path='/api/articles/how-to-train-your-dragon/dislike/',
-                                   HTTP_AUTHORIZATION='Bearer ' + token)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['message'], "You Dislike this Article")
