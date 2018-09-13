@@ -34,8 +34,9 @@ class DislikeLikeArticleTestCase(ArticleTestCase):
 
     def test_if_user_can_dislike_without_authentication(self):
         """Test if user can dislike article without authentication"""
-        # Like an article
+        # Dislike an article
         response = self.client.put(path='/api/articles/how-to-train-your-dragon/dislike/')
+
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(response.data['detail'], "Authentication credentials were not provided.")
 
