@@ -28,6 +28,14 @@ class BaseTest(APITestCase):
                 }
         }
 
+        self.user_cred2 = {
+            "user": {
+                    "email": "jake123@jakerr.jake",
+                    "username": "jakerrrrrrrrr",
+                    "password": "J!ake123456"
+                }
+        }
+
         self.user_cred_wrong_pass = {
             "user": {
                     "email": "jake@jake.jake",
