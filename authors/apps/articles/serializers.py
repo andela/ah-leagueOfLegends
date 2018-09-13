@@ -116,6 +116,7 @@ class CommentSerializer(serializers.ModelSerializer):
         slug = self.context.get('slug')
         author = self.context.get('author', None)
         article = Article.objects.get(slug=slug)
-        comment = Comment.objects.create(article=article, author=author, **validated_data)
+        comment = Comment.objects.create(article=article,
+                                         author=author, **validated_data)
         return comment
 >>>>>>> [Feature #159965483] Add Comment serializers
