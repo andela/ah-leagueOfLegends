@@ -277,7 +277,6 @@ class ArticleSearchList(generics.ListAPIView):
     filter_fields = filter_list
     search_fields = search_list
     filterset_class = ArticleFilter
-    
 
 
 class ArticlesFavoriteAPIView(APIView):
@@ -414,3 +413,57 @@ class CommentRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
         comment.delete()
 
         return Response({"message": "Your comment has been successfully deleted"}, status=status.HTTP_200_OK)
+
+class LikeComment(APIView):
+    serializer_class = CommentSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly, )
+    renderer_classes = (CommentJSONRenderer,)
+
+    def put(self, request, **kwargs):
+        slug = self.kwargs['slug']
+        pk = self.kwargs['pk']
+        try:
+            article = Article.objects.get(slug=slug)
+        except Article.DoesNotExist:
+            raise NotFound('An article with this slug does not exist.')
+        try:
+            comment = Comment.objects.get(pk=pk)
+        except Comment.DoesNotExist:
+            raise NotFound('A comment with this ID does not exist.')
+
+        comment.dislikes.remove(request.user)
+
+        if request.user in comment.likes.all():
+            comment.likes.remove(request.user)
+            return Response({"message": "You unliked this article."}, status=status.HTTP_200_OK)
+
+        comment.likes.add(request.user)
+        return Response({"message": "You liked this comment"}, status=status.HTTP_200_OK)
+
+
+class DislikeComment(APIView):
+    serializer_class = CommentSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly, )
+    renderer_classes = (CommentJSONRenderer,)
+
+    def put(self, request, **kwargs):
+        slug = self.kwargs['slug']
+        pk = self.kwargs['pk']
+        try:
+            article = Article.objects.get(slug=slug)
+        except Article.DoesNotExist:
+
+            raise NotFound('An article with this slug does not exist.')
+        try:
+            comment = Comment.objects.get(pk=pk)
+        except Comment.DoesNotExist:
+            raise NotFound('A comment with this ID does not exist.')
+
+        comment.likes.remove(request.user)
+
+        if request.user in comment.dislikes.all():
+            comment.dislikes.remove(request.user)
+            return Response({"message": "You undisliked this article."}, status=status.HTTP_200_OK)
+
+        comment.dislikes.add(request.user)
+        return Response({"message": "You disliked this comment"}, status=status.HTTP_200_OK)

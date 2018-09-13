@@ -81,6 +81,8 @@ class Comment(TimestampedModel):
     body = models.TextField()
     author = models.ForeignKey('authentication.User', on_delete=models.CASCADE)
     article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    likes = models.ManyToManyField('authentication.User', related_name='likes', blank=True)
+    dislikes = models.ManyToManyField('authentication.User', related_name='dislikes', blank=True)
 
     def __str__(self):
         return self.body

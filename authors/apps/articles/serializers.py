@@ -101,6 +101,8 @@ class CommentSerializer(serializers.ModelSerializer):
     mediate between comment model and python primitives
     '''
     author = UserSerializer(read_only=True)
+    likes = serializers.SerializerMethodField(method_name='likes_count')
+    dislikes = serializers.SerializerMethodField(method_name='dislikes_count')
 
     class Meta:
         model = Comment
@@ -110,6 +112,8 @@ class CommentSerializer(serializers.ModelSerializer):
             'updated_at',
             'body',
             'author',
+            'likes',
+            "dislikes",
         )
 
     def create(self, validated_data):
@@ -119,4 +123,19 @@ class CommentSerializer(serializers.ModelSerializer):
         comment = Comment.objects.create(article=article,
                                          author=author, **validated_data)
         return comment
+<<<<<<< HEAD
 >>>>>>> [Feature #159965483] Add Comment serializers
+=======
+
+    def likes_count(self, instance):
+       """
+       Gets the total number of likes for a particular article
+       """
+       return instance.likes.count()
+
+    def dislikes_count(self, instance):
+       """
+       Gets the total number of dislikes for a particular article
+       """
+       return instance.dislikes.count()
+>>>>>>> [Feature #159965503] Add like,dislike comments and tests
