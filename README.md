@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/andela/ah-leagueOfLegends.svg?branch=develop)](https://travis-ci.org/andela/ah-leagueOfLegends)
+[![Build Status](https://travis-ci.org/andela/ah-leagueOfLegends.svg?branch=develop2&service=github)](https://travis-ci.org/andela/ah-leagueOfLegends)
 [![Coverage Status](https://coveralls.io/repos/github/andela/ah-leagueOfLegends/badge.svg?branch=develop)](https://coveralls.io/github/andela/ah-leagueOfLegends?branch=develop)
 
 Authors Haven - A Social platform for the creative at heart.
@@ -49,6 +49,8 @@ The preferred JSON object to be returned by the API should be structured as foll
     "tagList": ["dragons", "training"],
     "createdAt": "2016-02-18T03:22:56.637Z",
     "updatedAt": "2016-02-18T03:48:35.824Z",
+    "likes": 10,
+    "dislikes": 10,
     "favorited": false,
     "favoritesCount": 0,
     "author": {
@@ -71,6 +73,8 @@ The preferred JSON object to be returned by the API should be structured as foll
     "tagList": ["dragons", "training"],
     "createdAt": "2016-02-18T03:22:56.637Z",
     "updatedAt": "2016-02-18T03:48:35.824Z",
+    "likes": 10,
+    "dislikes": 10,
     "favorited": false,
     "favoritesCount": 0,
     "author": {
@@ -88,6 +92,8 @@ The preferred JSON object to be returned by the API should be structured as foll
     "tagList": ["dragons", "training"],
     "createdAt": "2016-02-18T03:22:56.637Z",
     "updatedAt": "2016-02-18T03:48:35.824Z",
+    "likes": 10,
+    "dislikes": 10,
     "favorited": false,
     "favoritesCount": 0,
     "author": {

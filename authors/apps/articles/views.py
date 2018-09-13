@@ -1,5 +1,6 @@
 from rest_framework import generics, mixins, status, viewsets
 from rest_framework.exceptions import NotFound
+from rest_framework.generics import UpdateAPIView
 from rest_framework.permissions import (
     AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
 )
@@ -12,11 +13,11 @@ from .serializers import ArticleSerializer
 from rest_framework.pagination import LimitOffsetPagination
 
 
-class ArticleViewSet(mixins.CreateModelMixin, 
-                    mixins.ListModelMixin,
-                    mixins.RetrieveModelMixin,
-                    mixins.DestroyModelMixin,
-                    viewsets.GenericViewSet):
+class ArticleViewSet(mixins.CreateModelMixin,
+                     mixins.ListModelMixin,
+                     mixins.RetrieveModelMixin,
+                     mixins.DestroyModelMixin,
+                     viewsets.GenericViewSet):
     ''' By subclassing create, list, retrieve and destroy
     we can define create, list, retrieve and destroy
     endpoints in one class '''
@@ -46,14 +47,14 @@ class ArticleViewSet(mixins.CreateModelMixin,
         serializer_data = request.data.get('article', {})
 
         serializer = self.serializer_class(
-        data=serializer_data, context=serializer_context
+            data=serializer_data, context=serializer_context
         )
         serializer.is_valid(raise_exception=True)
         serializer.save(author=request.user)
 
-        return Response(serializer.data,\
-        
-            status=status.HTTP_201_CREATED)
+        return Response(serializer.data, \
+ \
+                        status=status.HTTP_201_CREATED)
 
     def list(self, request):
 
@@ -107,19 +108,18 @@ class ArticleViewSet(mixins.CreateModelMixin,
         except Article.DoesNotExist:
 
             raise NotFound('An article with this slug does not exist.')
-            
+
         serializer_data = request.data.get('article', {})
 
         serializer = self.serializer_class(
-            serializer_instance, 
+            serializer_instance,
             context=serializer_context,
-            data=serializer_data, 
+            data=serializer_data,
             partial=True
         )
         article = Article.objects.get(slug=slug);
 
         if request.user != article.author:
-
             return Response(
                 {'message': 'You can only update your article'},
 
@@ -144,15 +144,81 @@ class ArticleViewSet(mixins.CreateModelMixin,
 
         except Article.DoesNotExist:
             raise NotFound('An article with this slug does not exist.')
-            
+
         article = Article.objects.get(slug=slug);
-        
+
         if request.user != article.author:
             return Response({'message': 'You can only delete your article'},
-                status=status.HTTP_401_UNAUTHORIZED)
+                            status=status.HTTP_401_UNAUTHORIZED)
 
-        if article.delete(): 
+        if article.delete():
             return Response(
                 {'message': 'You have successfully deleted the article'},
                 status=status.HTTP_200_OK)
-        
+
+
+class LikeAPIView(UpdateAPIView):
+    queryset = Article.objects.all()
+    permission_classes = (IsAuthenticated,)
+    renderer_classes = (ArticleJSONRenderer,)
+    serializer_class = ArticleSerializer
+
+    lookup_field = 'slug'
+
+    def update(self, request, slug):
+        """Update the user's liking status on a particular article."""
+        # if not auth Sign in to make your opinion count.
+        user = request.user
+
+        try:
+            article = Article.objects.get(slug=slug)
+        except Exception:
+            return Response({"message": "The article does not exist."}, status=status.HTTP_404_NOT_FOUND)
+            # raise NotFound('The article does not exist.')
+
+        if user in article.like.all():
+            # If like exists, remove like
+            article.like.remove(user.id)
+            return Response({"message": "You no longer like this article"}, status=status.HTTP_200_OK)
+        if user in article.dislike.all():
+            # If user had disliked the article, removes the dislike and adds the like
+            article.dislike.remove(user.id)
+            article.like.add(user.id)
+            return Response({"message": "Removed from dislike and Added to Liked articles"}, status=status.HTTP_200_OK)
+        else:
+            # If like does not exist, add like
+            article.like.add(user.id)
+            return Response({"message": "Added to Liked articles"}, status=status.HTTP_200_OK)
+
+
+class DisLikeAPIView(UpdateAPIView):
+    queryset = Article.objects.all()
+    permission_classes = (IsAuthenticated,)
+    renderer_classes = (ArticleJSONRenderer,)
+    serializer_class = ArticleSerializer
+
+    lookup_field = 'slug'
+
+    def update(self, request, slug):
+        """Update the user's liking status on a particular article."""
+        # if not auth Sign in to make your opinion count.
+        user = request.user
+
+        try:
+            article = Article.objects.get(slug=slug)
+        except Exception:
+            return Response({"message": "The article does not exist."}, status=status.HTTP_404_NOT_FOUND)
+
+        if user in article.dislike.all():
+            # If dislike exists, remove dislike
+            article.dislike.remove(user.id)
+            return Response({"message": "You no longer dislike this article"}, status=status.HTTP_200_OK)
+        if user in article.like.all():
+            article.like.remove(user.id)
+            article.dislike.add(user.id)
+            return Response({"message": "Removed from Liked Articles and Added to Disliked articles"},
+                            status=status.HTTP_200_OK)
+        else:
+            # If dislike does not exist, add dislike
+            article.dislike.add(user.id)
+            return Response({"message": "You Dislike this Article"}, status=status.HTTP_200_OK)

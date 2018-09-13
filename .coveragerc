@@ -1,21 +1,23 @@
 [report]
 omit =
     */authors/apps/__init__.py
-    */authors/apps/authentication/__init__.py
     */authors/apps/core/__init__.py
     */authors/apps/core/exceptions.py
-    */authors/apps/authentication/migrations/0001_initial.py
-    */authors/apps/authentication/migrations/__init__.py
-    */authors/apps/profiles/__init__.py
-    */authors/apps/profiles/tests/__init__.py
-    */authors/apps/authentication/test/__init__.py
-    */authors/apps/authentication/test/base.py
-    */authors/apps/authentication/test/test_auth.py
-    */authors/apps/authentication/test/test_social_login.py
-    */authors/apps/authentication/test/test_models.py
-    */authors/apps/authentication/test/test_register_validation.py
+    */authors/apps/authentication/__init__.py
+    */authors/apps/authentication/migrations/*.py
+    */authors/apps/authentication/test/*.py
     */authors/apps/base_test.py
-    */authors/apps/profiles/tests/test_profiles.py
     */python?.?/*
     */site-packages/*
     */tests/*
+    */authors/apps/articles/__init__.py
+    */authors/apps/articles/migrations/*.py
+    */authors/apps/articles/test/*.py
+    */authors/apps/core/email_with_celery.py
+    */authors/apps/core/models.py
+    */authors/apps/profiles/__init__.py
+    */authors/apps/profiles/test/*.py
+    */authors/apps/profiles/migrations/*.py
+    */authors/apps/profiles/admin.py
+    */authors/apps/profiles/apps.py
+    */authors/apps/profiles/exceptions.py
