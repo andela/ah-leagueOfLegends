@@ -39,7 +39,7 @@ class ArticleSerializer(serializers.ModelSerializer):
             'author',
             'body',
             'tagList',
-            'created_at',
+            'created_at_date',
             'description',
             'slug',
             'title',
@@ -117,6 +117,9 @@ class CommentSerializer(serializers.ModelSerializer):
         )
 
     def create(self, validated_data):
+        '''
+        add comment
+        '''
         slug = self.context.get('slug')
         author = self.context.get('author', None)
         article = Article.objects.get(slug=slug)
