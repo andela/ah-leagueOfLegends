@@ -2,6 +2,8 @@ from django.db import models
 from django.utils.text import slugify
 from django.contrib.postgres.fields import ArrayField
 
+from authors.apps.authentication.models import User
+
 
 class TimestampedModel(models.Model):
     ''' Model to take care of when an instance occurs in the database
@@ -24,17 +26,19 @@ class TimestampedModel(models.Model):
 class Article(TimestampedModel):
     slug = models.SlugField(db_index=True, max_length=255, unique=True)
     title = models.CharField(db_index=True, max_length=255)
-
     description = models.TextField()
-
     body = models.TextField()
-
     tagList = ArrayField(models.CharField(
         max_length=255), default=None, null=True, blank=True)
-
     image = models.ImageField(
         upload_to='myphoto/%Y/%m/%d/', null=True, max_length=255)
-
+    # blank = True
+    # a many-to-many field will map to a serializer field that
+    # requires at least one input, unless the model field has blank=True
+    like = models.ManyToManyField(User, blank=True, related_name='like')
+    # define related_name argument for 'Article.like' or 'Article.dislike'.
+    # to ensure that the fields were not conflicting with each other,
+    dislike = models.ManyToManyField(User, blank=True, related_name='dislike')
     # An author is the creator of the article, usually the current logged in user.
     # I create a foreign key r/ship.
     # This r/ship can help returns all articles of a particular author.
