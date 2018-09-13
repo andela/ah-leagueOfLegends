@@ -175,7 +175,7 @@ class LikeAPIView(UpdateAPIView):
     permission_classes = (IsAuthenticated,)
     renderer_classes = (ArticleJSONRenderer,)
     serializer_class = ArticleSerializer
-
+    
     lookup_field = 'slug'
 
     def update(self, request, slug):
@@ -237,7 +237,6 @@ class DisLikeAPIView(UpdateAPIView):
             return Response({"message": "You Dislike this Article"}, status=status.HTTP_200_OK)
     
 
-
 class ArticleFilter(filters.FilterSet):
     """
     Class creates a custom filter class for articles,
@@ -283,3 +282,50 @@ class ArticleSearchList(generics.ListAPIView):
     filterset_class = ArticleFilter
     
 
+
+class ArticlesFavoriteAPIView(APIView):
+    """ 
+    This View allows users to Favorite and Unfavorite articles, an exception is 
+    thrown if the article doesn’t
+    exist. 
+    """
+    permission_classes = (IsAuthenticated,)
+    renderer_classes = (ArticleJSONRenderer,)
+    serializer_class = ArticleSerializer
+
+    def delete(self, request, article_slug=None):
+        """
+        Unfavorites an existing article with the profile unfavorite method
+        """
+        profile = self.request.user.profile
+        serializer_context = {'request': request}
+
+        try:
+            article = Article.objects.get(slug=article_slug)
+        except Article.DoesNotExist:
+            raise NotFound('An article with this slug was not found.')
+
+        profile.unfavorite(article)
+
+        serializer = self.serializer_class(article, context=serializer_context)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, article_slug=None):
+        """
+        unfavorites an existing article with the profile favorite method
+        """
+        profile = self.request.user.profile
+        serializer_context = {'request': request}
+
+        try:
+            article = Article.objects.get(slug=article_slug)
+        except Article.DoesNotExist:
+            raise NotFound('An article with this slug was not found.')
+
+        profile.favorite(article)
+
+        serializer = self.serializer_class(article, context=serializer_context)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+        
