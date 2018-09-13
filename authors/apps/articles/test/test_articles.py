@@ -1,4 +1,4 @@
-from ..base_test import BaseTest
+from authors.apps.base_test import BaseTest
 from django.urls import reverse
 from rest_framework.views import status
 import json
