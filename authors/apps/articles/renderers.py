@@ -26,6 +26,7 @@ class ArticleJSONRenderer(JSONRenderer):
 
 class CommentJSONRenderer(JSONRenderer):
     object_label = 'comment'
+    charset = 'utf-8'
 
     def render(self, data, media_type=None, renderer_context=None):
         """
