@@ -345,19 +345,26 @@ class CommentsListCreateAPIView(generics.ListCreateAPIView):
         return queryset.filter(**filters)
 
     def get(self, request, **kwargs):
+        '''
+        Get all comments to an article
+        '''
         slug = self.kwargs['slug']
         try:
             article = Article.objects.get(slug=slug)
             comments = Comment.objects.all().filter(article=article.id)
             serializer = self.serializer_class(comments, many=True)
 
-            return Response({"Comments":serializer.data}, status=status.HTTP_200_OK)
+            return Response({"Comments":serializer.data},
+                             status=status.HTTP_200_OK)
         except Article.DoesNotExist:
 
             raise NotFound('An article with this slug does not exist.')
 
 
     def create(self, request, **kwargs):
+        '''
+        Add comment to an article
+        '''
         slug = self.kwargs['slug']
         try:
             article = Article.objects.get(slug=slug)
@@ -383,6 +390,9 @@ class CommentRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comment.objects.all()
     
     def retrieve(self, request, **kwargs):
+        '''
+        Get single comment
+        '''
         slug = self.kwargs['slug']
         pk = self.kwargs['pk']
         try:
@@ -402,6 +412,9 @@ class CommentRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
 
 
     def destroy(self, request, **kwargs):
+        '''
+        Delete comment
+        '''
         pk = self.kwargs['pk']
         try:
             comment = Comment.objects.get(pk=pk)
@@ -409,17 +422,27 @@ class CommentRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
             raise NotFound('A comment with this ID does not exist.')
 
         if comment.author.id != request.user.id:
-            return Response({"error": "you can not delete a comment that does not belong to you"}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({
+                "error": "you can not delete a comment that does not belong to you"}, 
+                status=status.HTTP_401_UNAUTHORIZED)
         comment.delete()
 
-        return Response({"message": "Your comment has been successfully deleted"}, status=status.HTTP_200_OK)
+        return Response({
+            "message": "Your comment has been successfully deleted"}, 
+            status=status.HTTP_200_OK)
 
 class LikeComment(APIView):
+    '''
+    Like a comment
+    '''
     serializer_class = CommentSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, )
     renderer_classes = (CommentJSONRenderer,)
 
     def put(self, request, **kwargs):
+        '''
+        update like field in comment model
+        '''
         slug = self.kwargs['slug']
         pk = self.kwargs['pk']
         try:
@@ -435,18 +458,26 @@ class LikeComment(APIView):
 
         if request.user in comment.likes.all():
             comment.likes.remove(request.user)
-            return Response({"message": "You unliked this article."}, status=status.HTTP_200_OK)
+            return Response({"message": "You unliked this article."},
+                             status=status.HTTP_200_OK)
 
         comment.likes.add(request.user)
-        return Response({"message": "You liked this comment"}, status=status.HTTP_200_OK)
+        return Response({"message": "You liked this comment"},
+                         status=status.HTTP_200_OK)
 
 
 class DislikeComment(APIView):
+    '''
+    dislike a comment
+    '''
     serializer_class = CommentSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, )
     renderer_classes = (CommentJSONRenderer,)
 
     def put(self, request, **kwargs):
+        '''
+        update dislike field in comment model
+        '''
         slug = self.kwargs['slug']
         pk = self.kwargs['pk']
         try:
@@ -463,7 +494,9 @@ class DislikeComment(APIView):
 
         if request.user in comment.dislikes.all():
             comment.dislikes.remove(request.user)
-            return Response({"message": "You undisliked this article."}, status=status.HTTP_200_OK)
+            return Response({"message": "You undisliked this article."},
+                             status=status.HTTP_200_OK)
 
         comment.dislikes.add(request.user)
-        return Response({"message": "You disliked this comment"}, status=status.HTTP_200_OK)
+        return Response({"message": "You disliked this comment"},
+                         status=status.HTTP_200_OK)
