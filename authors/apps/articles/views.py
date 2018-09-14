@@ -354,7 +354,7 @@ class CommentsListCreateAPIView(generics.ListCreateAPIView):
             comments = Comment.objects.all().filter(article=article.id)
             serializer = self.serializer_class(comments, many=True)
 
-            return Response({"Comments":serializer.data},
+            return Response(serializer.data,
                              status=status.HTTP_200_OK)
         except Article.DoesNotExist:
 
@@ -407,8 +407,7 @@ class CommentRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
 
         serializer = self.serializer_class(comment)
 
-        return Response(
-            {'comment': serializer.data}, status=status.HTTP_200_OK)
+        return Response({"comment": serializer.data}, status=status.HTTP_200_OK)
 
 
     def destroy(self, request, **kwargs):
