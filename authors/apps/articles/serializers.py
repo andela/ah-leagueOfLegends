@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from authors.apps.authentication.serializers import UserSerializer
+from authors.apps.profiles.serializers import ProfileSerializer
 
-from .models import Article
+from .models import Article, Comment
 
 
 class ArticleSerializer(serializers.ModelSerializer):
@@ -92,3 +93,26 @@ class ArticleSerializer(serializers.ModelSerializer):
     
     def get_favorites_count(self, instance):
         return instance.favorited_by.count()
+
+class CommentSerializer(serializers.ModelSerializer):
+    '''
+    mediate between comment model and python primitives
+    '''
+    author = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = (
+            'id',
+            'created_at',
+            'updated_at',
+            'body',
+            'author',
+        )
+
+    def create(self, validated_data):
+        slug = self.context.get('slug')
+        author = self.context.get('author', None)
+        article = Article.objects.get(slug=slug)
+        comment = Comment.objects.create(article=article, author=author, **validated_data)
+        return comment

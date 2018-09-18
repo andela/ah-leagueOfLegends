@@ -7,9 +7,6 @@ from rest_framework.permissions import (
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Article
-from .renderers import ArticleJSONRenderer
-from .serializers import ArticleSerializer
 from rest_framework.pagination import LimitOffsetPagination
 from django.db.models import Q
 from django.conf import settings
@@ -21,16 +18,16 @@ from django.views.generic import ListView
 import django_filters
 from django_filters import rest_framework as filters
 from django.contrib.postgres.fields import ArrayField
+from .models import Article, Comment
+from .renderers import ArticleJSONRenderer, CommentJSONRenderer
+from .serializers import ArticleSerializer, CommentSerializer
 
 
-
-#from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
-
-class ArticleViewSet(mixins.CreateModelMixin, 
-                    mixins.ListModelMixin,
-                    mixins.RetrieveModelMixin,
-                    mixins.DestroyModelMixin,
-                    viewsets.GenericViewSet):
+class ArticleViewSet(mixins.CreateModelMixin,
+                     mixins.ListModelMixin,
+                     mixins.RetrieveModelMixin,
+                     mixins.DestroyModelMixin,
+                     viewsets.GenericViewSet):
     ''' By subclassing create, list, retrieve and destroy
     we can define create, list, retrieve and destroy
     endpoints in one class '''
@@ -280,7 +277,6 @@ class ArticleSearchList(generics.ListAPIView):
     filter_fields = filter_list
     search_fields = search_list
     filterset_class = ArticleFilter
-    
 
 
 class ArticlesFavoriteAPIView(APIView):
@@ -329,3 +325,177 @@ class ArticlesFavoriteAPIView(APIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
         
+        
+class CommentsListCreateAPIView(generics.ListCreateAPIView):
+    '''
+    View to create and list comments
+    '''
+
+    lookup_field = 'article__slug'
+    lookup_url_kwarg = 'slug'
+
+    queryset = Comment.objects.select_related()
+    serializer_class = CommentSerializer
+    renderer_classes = (CommentJSONRenderer,)
+    permission_classes = (IsAuthenticatedOrReadOnly, )
+
+    def filter_queryset(self, queryset):
+        """Handle getting comments on an article."""
+        filters = {self.lookup_field: self.kwargs[self.lookup_url_kwarg]}
+        return queryset.filter(**filters)
+
+    def get(self, request, **kwargs):
+        '''
+        Get all comments to an article
+        '''
+        slug = self.kwargs['slug']
+        try:
+            article = Article.objects.get(slug=slug)
+            comments = Comment.objects.all().filter(article=article.id)
+            serializer = self.serializer_class(comments, many=True)
+
+            return Response(serializer.data,
+                             status=status.HTTP_200_OK)
+        except Article.DoesNotExist:
+
+            raise NotFound('An article with this slug does not exist.')
+
+
+    def create(self, request, **kwargs):
+        '''
+        Add comment to an article
+        '''
+        slug = self.kwargs['slug']
+        try:
+            article = Article.objects.get(slug=slug)
+        except Article.DoesNotExist:
+            raise NotFound("An article with that slug does not exist")
+        serializer_context = {"author": request.user, "slug": slug}
+        serializer_data = request.data.get('comment', {})
+        serializer = self.serializer_class( 
+                    data=serializer_data,
+                    context=serializer_context)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED )
+
+class CommentRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
+    '''
+    View to retreive, update and delete a single comment
+    '''
+    lookup_url_kwarg = 'pk'
+    serializer_class = CommentSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly, )
+    queryset = Comment.objects.all()
+    
+    def retrieve(self, request, **kwargs):
+        '''
+        Get single comment
+        '''
+        slug = self.kwargs['slug']
+        pk = self.kwargs['pk']
+        try:
+            article = Article.objects.get(slug=slug)
+        except Article.DoesNotExist:
+
+            raise NotFound('An article with this slug does not exist.')
+        try:
+            comment = Comment.objects.get(pk=pk)
+        except:
+            raise NotFound('The comment with that id does not exist')
+
+        serializer = self.serializer_class(comment)
+
+        return Response({"comment": serializer.data}, status=status.HTTP_200_OK)
+
+
+    def destroy(self, request, **kwargs):
+        '''
+        Delete comment
+        '''
+        pk = self.kwargs['pk']
+        try:
+            comment = Comment.objects.get(pk=pk)
+        except Comment.DoesNotExist:
+            raise NotFound('A comment with this ID does not exist.')
+
+        if comment.author.id != request.user.id:
+            return Response({
+                "error": "you can not delete a comment that does not belong to you"}, 
+                status=status.HTTP_401_UNAUTHORIZED)
+        comment.delete()
+
+        return Response({
+            "message": "Your comment has been successfully deleted"}, 
+            status=status.HTTP_200_OK)
+
+class LikeComment(APIView):
+    '''
+    Like a comment
+    '''
+    serializer_class = CommentSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly, )
+    renderer_classes = (CommentJSONRenderer,)
+
+    def put(self, request, **kwargs):
+        '''
+        update like field in comment model
+        '''
+        slug = self.kwargs['slug']
+        pk = self.kwargs['pk']
+        try:
+            article = Article.objects.get(slug=slug)
+        except Article.DoesNotExist:
+            raise NotFound('An article with this slug does not exist.')
+        try:
+            comment = Comment.objects.get(pk=pk)
+        except Comment.DoesNotExist:
+            raise NotFound('A comment with this ID does not exist.')
+
+        comment.dislikes.remove(request.user)
+
+        if request.user in comment.likes.all():
+            comment.likes.remove(request.user)
+            return Response({"message": "You unliked this article."},
+                             status=status.HTTP_200_OK)
+
+        comment.likes.add(request.user)
+        return Response({"message": "You liked this comment"},
+                         status=status.HTTP_200_OK)
+
+
+class DislikeComment(APIView):
+    '''
+    dislike a comment
+    '''
+    serializer_class = CommentSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly, )
+    renderer_classes = (CommentJSONRenderer,)
+
+    def put(self, request, **kwargs):
+        '''
+        update dislike field in comment model
+        '''
+        slug = self.kwargs['slug']
+        pk = self.kwargs['pk']
+        try:
+            article = Article.objects.get(slug=slug)
+        except Article.DoesNotExist:
+
+            raise NotFound('An article with this slug does not exist.')
+        try:
+            comment = Comment.objects.get(pk=pk)
+        except Comment.DoesNotExist:
+            raise NotFound('A comment with this ID does not exist.')
+
+        comment.likes.remove(request.user)
+
+        if request.user in comment.dislikes.all():
+            comment.dislikes.remove(request.user)
+            return Response({"message": "You undisliked this article."},
+                             status=status.HTTP_200_OK)
+
+        comment.dislikes.add(request.user)
+        return Response({"message": "You disliked this comment"},
+                         status=status.HTTP_200_OK)
