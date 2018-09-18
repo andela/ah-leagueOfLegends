@@ -4,8 +4,11 @@ from django.contrib.postgres.fields import ArrayField
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from notifications.signals import notify
+<<<<<<< HEAD
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_text
+=======
+>>>>>>> [Feature #159965488]Upate models to enable users recieve email notifications
 
 
 from authors.apps.authentication.models import User
@@ -119,6 +122,7 @@ class ArticleRatings(models.Model):
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 class Report(TimestampedModel):
     """Reporting an article model"""
     body = models.TextField()
@@ -181,10 +185,25 @@ def send_notifications_to_all_users_on_comments(sender,
             context={
                 "article": instance,
                 "url_link": link
+=======
+@receiver(post_save, sender=Article)
+def send_notifications_to_followers(sender, instance, created, *args, **kwargs):
+
+    if instance and created:
+        receivers = list(User.objects.all())
+        notify.send(instance, recipient=receivers,
+                    verb=f'A new article has been published by ')
+        # import pdb; pdb.set_trace()
+        SendEmail(
+            template="create_article.html",
+            context={
+                "article": instance
+>>>>>>> [Feature #159965488]Upate models to enable users recieve email notifications
             },
             subject=" has published a new article",
             e_to=[u.email for u in receivers],
         ).send()
+<<<<<<< HEAD
 >>>>>>> [Feature #159965488]Upate models to enable users recieve email notifications
 =======
         if author:
@@ -206,3 +225,5 @@ def send_notifications_to_all_users_on_comments(sender,
                 e_to=[u.email for u in receivers],
             ).send()
 >>>>>>> [Feature #159965488] Update model to make travis build pass
+=======
+>>>>>>> [Feature #159965488]Upate models to enable users recieve email notifications
