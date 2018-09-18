@@ -81,7 +81,6 @@ class ArticleSerializer(serializers.ModelSerializer):
         """Sets the value of dislike field to the serializer by returning the length of the dislike object."""
         # counts the number of children the dislike object has
         return obj.dislike.count()
-<<<<<<< HEAD
     
     def get_favorited(self, instance):
         request = self.context.get('request', None)
@@ -94,15 +93,12 @@ class ArticleSerializer(serializers.ModelSerializer):
     
     def get_favorites_count(self, instance):
         return instance.favorited_by.count()
-=======
 
 class CommentSerializer(serializers.ModelSerializer):
     '''
     mediate between comment model and python primitives
     '''
     author = UserSerializer(read_only=True)
-    likes = serializers.SerializerMethodField(method_name='likes_count')
-    dislikes = serializers.SerializerMethodField(method_name='dislikes_count')
 
     class Meta:
         model = Comment
@@ -112,33 +108,11 @@ class CommentSerializer(serializers.ModelSerializer):
             'updated_at',
             'body',
             'author',
-            'likes',
-            "dislikes",
         )
 
     def create(self, validated_data):
-        '''
-        add comment
-        '''
         slug = self.context.get('slug')
         author = self.context.get('author', None)
         article = Article.objects.get(slug=slug)
-        comment = Comment.objects.create(article=article,
-                                         author=author, **validated_data)
+        comment = Comment.objects.create(article=article, author=author, **validated_data)
         return comment
-<<<<<<< HEAD
->>>>>>> [Feature #159965483] Add Comment serializers
-=======
-
-    def likes_count(self, instance):
-       """
-       Gets the total number of likes for a particular article
-       """
-       return instance.likes.count()
-
-    def dislikes_count(self, instance):
-       """
-       Gets the total number of dislikes for a particular article
-       """
-       return instance.dislikes.count()
->>>>>>> [Feature #159965503] Add like,dislike comments and tests
