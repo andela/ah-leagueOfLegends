@@ -6,6 +6,7 @@ from notifications.signals import notify
 from authors.apps.authentication.serializers import UserSerializer
 from authors.apps.profiles.serializers import ProfileSerializer
 from authors.apps.authentication.models import User
+from authors.apps.profiles.models import Profile
 
 from .models import Article, Comment, ArticleRatings, Report
 from django.db.models import Avg, Count
@@ -152,6 +153,12 @@ class CommentSerializer(serializers.ModelSerializer):
         author = self.context.get('author', None)
         article = Article.objects.get(slug=slug)
         comment = Comment.objects.create(article=article, author=author, **validated_data)
+        recipients = []
+        for profile in Profile.objects.all():
+            if profile.has_favorited(article):
+                user = User.objects.get(pk=profile.id)
+                recipients.append(user)
+        notify.send(author, recipient=recipients, verb="commented on", action_object=article)
         return comment
 
 
