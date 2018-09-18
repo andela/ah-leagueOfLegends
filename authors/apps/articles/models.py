@@ -129,10 +129,13 @@ def send_notifications_to_all_users(sender,
 
     if instance and created:
         receivers = list(User.objects.all())
+        link = f'https://ah-leagueoflegends-staging.herokuapp.com/api/articles/{instance.slug}'
         SendEmail(
             template="create_article.html",
             context={
-                "article": instance
+                "article": instance,
+                "author": instance.author,
+                "url_link": link
             },
             subject=" has published a new article",
             e_to=[u.email for u in receivers],
@@ -141,7 +144,7 @@ def send_notifications_to_all_users(sender,
 
 @receiver(post_save, sender=Comment)
 def send_notifications_to_all_users_on_comments(sender,
-                                                instance,
+                                            instance,
                                                 created,
                                                 *args, **kwargs):
     """Create a Signal that sends email to all users that follow the author.
@@ -153,11 +156,14 @@ def send_notifications_to_all_users_on_comments(sender,
 
     if instance and created:
         receivers = list(User.objects.all())
-        print(receivers)
+        author = User.objects.get(email=instance.author)
+        article = Article.objects.get(author=author, id=instance.id)
+        link = f'https://ah-leagueoflegends-staging.herokuapp.com/api/articles/{article.slug}/comments/{instance.id}'
         SendEmail(
-            template="create_article.html",
+            template="comment_notification.html",
             context={
-                "article": instance
+                "article": instance,
+                "url_link": link
             },
             subject=" has published a new article",
             e_to=[u.email for u in receivers],
