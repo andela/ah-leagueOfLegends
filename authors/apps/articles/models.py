@@ -117,10 +117,17 @@ class ArticleRatings(models.Model):
 
 
 @receiver(post_save, sender=Article)
-def send_notifications_to_followers(sender, instance, created, *args, **kwargs):
+def send_notifications_to_all_users(sender, instance, created, *args, **kwargs):
+    """Create a Signal that sends email to all users that follow the author.
+
+    Arguments:
+        sender {[type]} -- [Instance of ]
+        created {[type]} -- [If the article is posted.]
+    """
 
     if instance and created:
         receivers = list(User.objects.all())
+        print('$$$$$$',instance.author)
         notify.send(instance, recipient=receivers,
                     verb=f'A new article has been published by ')
         # import pdb; pdb.set_trace()
