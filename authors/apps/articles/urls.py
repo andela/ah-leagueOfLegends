@@ -6,7 +6,8 @@ from rest_framework.routers import DefaultRouter
 from .views import (ArticleViewSet, LikeAPIView, DisLikeAPIView,
                     ArticleSearchList, ArticlesFavoriteAPIView,
                     CommentsListCreateAPIView, CommentRetrieveUpdateDestroy,
-                    LikeComment, DislikeComment, RateArticlesAPIView, BookmarkAPIView)
+                    LikeComment, DislikeComment, RateArticlesAPIView, BookmarkAPIView,
+                    ReportCreateAPIView, ReportListAPIView)
 
 router = DefaultRouter(trailing_slash=False)
 router.register(r'articles', ArticleViewSet, base_name="fetch_articles")
@@ -28,5 +29,7 @@ urlpatterns = [
     path('articles/<slug>/comments/<pk>/like', LikeComment.as_view()),
     path('articles/<slug>/comments/<pk>/dislike', DislikeComment.as_view()),
     path('articles/<slug>/rate/', RateArticlesAPIView.as_view()),
+    path('articles/<slug>/report', ReportCreateAPIView.as_view()),
+    path('articles/<slug>/reports', ReportListAPIView.as_view()),
 
 ]

@@ -2,7 +2,7 @@ from rest_framework import serializers
 from authors.apps.authentication.serializers import UserSerializer
 from authors.apps.profiles.serializers import ProfileSerializer
 
-from .models import Article, Comment, ArticleRatings
+from .models import Article, Comment, ArticleRatings, Report
 from django.db.models import Avg, Count
 
 
@@ -178,3 +178,22 @@ class RatingSerializer(serializers.Serializer):
             )
 
         return {"rating": rate}
+class ReportSerializer(serializers.ModelSerializer):
+    """mediates between the reporting an article model and python primitives"""
+    author = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Report
+        fields = (
+            'id',
+            'created_at',
+            'body',
+            'author',
+        )
+
+    def create(self, validated_data):
+        slug = self.context.get('slug')
+        author = self.context.get('author', None)
+        article = Article.objects.get(slug=slug)
+        report = Report.objects.create(article=article, author=author, **validated_data)
+        return report
