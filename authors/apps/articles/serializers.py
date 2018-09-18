@@ -1,6 +1,11 @@
 from rest_framework import serializers
+
+from django.db.models.signals import post_save
+from notifications.signals import notify
+
 from authors.apps.authentication.serializers import UserSerializer
 from authors.apps.profiles.serializers import ProfileSerializer
+from authors.apps.authentication.models import User
 
 from .models import Article, Comment, ArticleRatings
 from django.db.models import Avg, Count
@@ -63,6 +68,7 @@ class ArticleSerializer(serializers.ModelSerializer):
 
         article = Article.objects.create(**validated_data)
 
+        notify.send(author, recipient=User.objects.all(), verb="created a new article", action_object=article)
         return article
 
     def get_created_at(self, instance):
