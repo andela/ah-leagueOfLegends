@@ -138,8 +138,8 @@ def send_notifications_to_all_users(sender, instance, created, *args, **kwargs):
     if instance and created:
         receivers = list(User.objects.all())
         print('$$$$$$',instance.author)
-        notify.send(instance, recipient=receivers,
-                    verb=f'A new article has been published by ')
+        # notify.send(instance, recipient=receivers,
+        #             verb=f'A new article has been published by ')
         # import pdb; pdb.set_trace()
         SendEmail(
             template="create_article.html",
