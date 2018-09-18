@@ -1,8 +1,13 @@
 from django.db import models
 from django.utils.text import slugify
 from django.contrib.postgres.fields import ArrayField
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from notifications.signals import notify
+
 
 from authors.apps.authentication.models import User
+from authors.apps.core.email_with_celery import SendEmail
 
 
 class TimestampedModel(models.Model):
@@ -111,6 +116,7 @@ class ArticleRatings(models.Model):
 
 
 
+<<<<<<< HEAD
 class Report(TimestampedModel):
     """Reporting an article model"""
     body = models.TextField()
@@ -119,3 +125,21 @@ class Report(TimestampedModel):
 
     def __str__(self):
         return self.body
+=======
+@receiver(post_save, sender=Article)
+def send_notifications_to_followers(sender, instance, created, *args, **kwargs):
+
+    if instance and created:
+        receivers = list(User.objects.all())
+        notify.send(instance, recipient=receivers,
+                    verb=f'A new article has been published by ')
+        # import pdb; pdb.set_trace()
+        SendEmail(
+            template="create_article.html",
+            context={
+                "article": instance
+            },
+            subject=" has published a new article",
+            e_to=[u.email for u in receivers],
+        ).send()
+>>>>>>> [Feature #159965488]Upate models to enable users recieve email notifications
