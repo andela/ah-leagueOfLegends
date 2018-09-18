@@ -5,13 +5,16 @@ from rest_framework.permissions import IsAuthenticated
 from .serializers import NotificationSerializer
 
 from notifications.models import Notification
+from .renderers import NotificationJSONRenderer
 
 class NotificationViewList(APIView):
     '''
     get all notifications where the receiver was the current user
     '''
     permission_classes = (IsAuthenticated,)
+    renderer_classes = (NotificationJSONRenderer,)
     serializer_class = NotificationSerializer
+    
 
     def get(self, request):
         queryset = self.request.user.notifications.unread()
