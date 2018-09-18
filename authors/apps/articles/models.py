@@ -127,7 +127,9 @@ class Report(TimestampedModel):
         return self.body
 =======
 @receiver(post_save, sender=Article)
-def send_notifications_to_all_users(sender, instance, created, *args, **kwargs):
+def send_notifications_to_all_users(sender,
+                                    instance,
+                                    created, *args, **kwargs):
     """Create a Signal that sends email to all users that follow the author.
 
     Arguments:
@@ -137,10 +139,31 @@ def send_notifications_to_all_users(sender, instance, created, *args, **kwargs):
 
     if instance and created:
         receivers = list(User.objects.all())
-        print('$$$$$$',instance.author)
-        # notify.send(instance, recipient=receivers,
-        #             verb=f'A new article has been published by ')
-        # import pdb; pdb.set_trace()
+        SendEmail(
+            template="create_article.html",
+            context={
+                "article": instance
+            },
+            subject=" has published a new article",
+            e_to=[u.email for u in receivers],
+        ).send()
+
+
+@receiver(post_save, sender=Comment)
+def send_notifications_to_all_users_on_comments(sender,
+                                                instance,
+                                                created,
+                                                *args, **kwargs):
+    """Create a Signal that sends email to all users that follow the author.
+
+    Arguments:
+        sender {[type]} -- [Instance of ]
+        created {[type]} -- [If the article is posted.]
+    """
+
+    if instance and created:
+        receivers = list(User.objects.all())
+        print(receivers)
         SendEmail(
             template="create_article.html",
             context={
