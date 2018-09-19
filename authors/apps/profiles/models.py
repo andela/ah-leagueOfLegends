@@ -1,6 +1,7 @@
 from django.db import models
 from authors.apps.core.models import TimestampedModel
 
+
 class Profile(TimestampedModel):
     """ This class represents the user Profile model """
     # There is one-to-one relationship between the user an profile model
@@ -17,7 +18,7 @@ class Profile(TimestampedModel):
     
     bio = models.TextField(blank=True)
     image = models.URLField(blank=True)
-
+    bookmarks = models.ManyToManyField('articles.Article', blank=True, related_name='bookmark')
     favorites = models.ManyToManyField('articles.Article',
                                        related_name='favorited_by'
                                        )
