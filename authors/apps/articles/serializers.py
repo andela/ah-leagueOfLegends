@@ -18,7 +18,7 @@ class ArticleSerializer(serializers.ModelSerializer):
     favorited = serializers.SerializerMethodField()
     favoritesCount = serializers.SerializerMethodField(
         method_name='get_favorites_count')
-
+    bookmarked = serializers.SerializerMethodField(method_name='get_bookmarks')
     # As for Django, serializers validate date 
     # then either save or return to the user 
     # via views.
@@ -52,7 +52,11 @@ class ArticleSerializer(serializers.ModelSerializer):
             'dislike',
             'favorited',
             'favoritesCount',
+<<<<<<< HEAD
             'average_ratings',
+=======
+            'bookmarked',
+>>>>>>> [Feature #159965498] Add bookmarked field to the ArticleSerializers
         )
 
     def create(self, validated_data):
@@ -88,7 +92,7 @@ class ArticleSerializer(serializers.ModelSerializer):
         serializer by returning the length of the dislike object."""
         # counts the number of children the dislike object has
         return obj.dislike.count()
-    
+
     def get_favorited(self, instance):
         request = self.context.get('request', None)
         if request is None:
@@ -96,14 +100,36 @@ class ArticleSerializer(serializers.ModelSerializer):
         if not request.user.is_authenticated:
             return False
         return request.user.profile.has_favorited(instance)
+<<<<<<< HEAD
     
     def average_count(self, object):
         average = ArticleRatings.objects.filter(
             article=object).aggregate(Avg('rating')).get('rating__avg', 0)
         return average
+=======
+
+    def get_bookmarks(self, instance):
+        """ Sets bookmarked as True or False"""
+        request = self.context.get('request', None)
+        # Ensures a request exists
+        if request is None:
+            return False
+        # Ensures user is authenticated
+        if not request.user.is_authenticated:
+            return False
+        bookmarks = request.user.profile.bookmarks.all()
+        # Checks if the instance of the article exists
+        if instance in bookmarks:
+            bookmarked = True
+        else:
+            bookmarked = False
+
+        return bookmarked
+>>>>>>> [Feature #159965498] Add bookmarked field to the ArticleSerializers
 
     def get_favorites_count(self, instance):
         return instance.favorited_by.count()
+
 
 class CommentSerializer(serializers.ModelSerializer):
     '''
