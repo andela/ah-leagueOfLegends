@@ -28,8 +28,8 @@ class ProfileRetrieveAPIView(RetrieveAPIView):
         serializer = self.serializer_class(profile, 
                            context={'request': request} )
 
-
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class ProfileList(ListAPIView):
     '''Retrives all profiles from the database'''
