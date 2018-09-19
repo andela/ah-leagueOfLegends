@@ -2,7 +2,12 @@ from rest_framework import serializers
 from authors.apps.authentication.serializers import UserSerializer
 from authors.apps.profiles.serializers import ProfileSerializer
 
+<<<<<<< HEAD
 from .models import Article, Comment
+=======
+from .models import Article, ArticleRatings
+from django.db.models import Avg, Count
+>>>>>>> [Feature #159965482] Implements rating of articles
 
 
 class ArticleSerializer(serializers.ModelSerializer):
@@ -28,12 +33,15 @@ class ArticleSerializer(serializers.ModelSerializer):
         method_name='get_created_at')
     updated_at_date = serializers.SerializerMethodField(
         method_name='get_updated_at')
+    average_ratings = serializers.SerializerMethodField(
+        method_name="average_count")
 
     class Meta:
         ''' Class contains the fields to be returned by articles serializer.
             Add here any other fields you want to be serialized
 
         '''
+    
         model = Article
         fields = (
             'author',
@@ -46,8 +54,12 @@ class ArticleSerializer(serializers.ModelSerializer):
             'updated_at_date',
             'like',
             'dislike',
+<<<<<<< HEAD
             'favorited',
             'favoritesCount',
+=======
+            'average_ratings',
+>>>>>>> [Feature #159965482] Implements rating of articles
         )
 
     def create(self, validated_data):
@@ -73,14 +85,17 @@ class ArticleSerializer(serializers.ModelSerializer):
         return instance.updated_at.isoformat()
 
     def get_like_count(self, obj):
-        """Sets the value of like field to the serializer by returning the length of the like object."""
+        """Sets the value of like field to the serializer 
+        by returning the length of the like object."""
         # counts the number of children the like object has
         return obj.like.count()
 
     def get_dislike_count(self, obj):
-        """Sets the value of dislike field to the serializer by returning the length of the dislike object."""
+        """Sets the value of dislike field to the 
+        serializer by returning the length of the dislike object."""
         # counts the number of children the dislike object has
         return obj.dislike.count()
+<<<<<<< HEAD
     
     def get_favorited(self, instance):
         request = self.context.get('request', None)
@@ -116,3 +131,41 @@ class CommentSerializer(serializers.ModelSerializer):
         article = Article.objects.get(slug=slug)
         comment = Comment.objects.create(article=article, author=author, **validated_data)
         return comment
+=======
+
+    def average_count(self, object):
+        average = ArticleRatings.objects.filter(
+            article=object).aggregate(Avg('rating')).get('rating__avg', 0)
+        return average
+
+
+class RatingSerializer(serializers.Serializer):
+    """
+    zserializer for rating
+    """
+
+    rating = serializers.IntegerField(required=True)
+
+    class Meta:
+        model = Article
+        fields = ['rating']
+
+    def validate(self, data):
+        # Validates rating data
+        # Has to be an Int and not less than 1
+        # and not greater than 5
+        rate = data.get('rating')
+
+        if isinstance(rate, str) or rate is None:
+            raise serializers.ValidationError(
+                """Only integers allowed."""
+            )
+
+        # Rate should be >0 and < 6
+        if rate > 5 or rate < 1:
+            raise serializers.ValidationError(
+                """Rate must be 1 and greater and not greater than 1"""
+            )
+
+        return {"rating": rate}
+>>>>>>> [Feature #159965482] Implements rating of articles

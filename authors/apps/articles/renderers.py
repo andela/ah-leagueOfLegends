@@ -26,20 +26,28 @@ class ArticleJSONRenderer(JSONRenderer):
 
 class CommentJSONRenderer(JSONRenderer):
     object_label = 'comment'
+    """
+    Render comments
+    """
+    if data is not None:
+        if len(data) <= 1:
+            return json.dumps({
+                'comment': data
+            })
+        return json.dumps({
+            'comments': data
+        })
+    return json.dumps({
+        'comment': 'No comment found.'
+    })  
+
+class RatingJSONRenderer(JSONRenderer):
     charset = 'utf-8'
 
     def render(self, data, media_type=None, renderer_context=None):
         """
-        Render comments
+        Render ratings data.
         """
-        if data is not None:
-            if len(data) <= 1:
-                return json.dumps({
-                    'comment': data
-                })
-            return json.dumps({
-                'comments': data
-            })
         return json.dumps({
-            'comment': 'No comment found.'
+            'rate': data,
         })

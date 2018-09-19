@@ -38,6 +38,7 @@ class ArticleTestCase(BaseTest):
             HTTP_AUTHORIZATION='Bearer ' + token,
         )
 
+<<<<<<< HEAD
     def favorite_article(self, token,slug):
         """
         Helper method to favorite an article
@@ -63,6 +64,8 @@ class ArticleTestCase(BaseTest):
             HTTP_AUTHORIZATION='Bearer ' + token
         )
 
+=======
+>>>>>>> [Feature #159965482] Implements rating of articles
 
     def test_create_successfully(self):
         response = self.client.post(
