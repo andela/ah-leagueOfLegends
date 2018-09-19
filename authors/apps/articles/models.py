@@ -5,7 +5,6 @@ from django.contrib.postgres.fields import ArrayField
 from authors.apps.authentication.models import User
 
 
-
 class TimestampedModel(models.Model):
     ''' Model to take care of when an instance occurs in the database
     Appends created at and updated at fields using datetime.now()'''
@@ -40,11 +39,13 @@ class Article(TimestampedModel):
     # define related_name argument for 'Article.like' or 'Article.dislike'.
     # to ensure that the fields were not conflicting with each other,
     dislike = models.ManyToManyField(User, blank=True, related_name='dislike')
+    # Bookmarked is set as False
+    bookmarked = models.BooleanField(default=False)
     # An author is the creator of the article, usually the current logged in user.
     # I create a foreign key r/ship.
     # This r/ship can help returns all articles of a particular author.
     author = models.ForeignKey(
-        'authentication.User', on_delete=models.CASCADE, 
+        'authentication.User', on_delete=models.CASCADE,
         related_name='articles'
     )
     ratings_counter = models.IntegerField(default=0)
@@ -76,20 +77,20 @@ class Article(TimestampedModel):
         
 
     def __str__(self):
-
         ''' Returns a title of the article as object representation'''
 
         return self.title
+
 
 class Comment(TimestampedModel):
     '''
     Comment class implementation
     '''
     body = models.TextField()
-    author = models.ForeignKey('authentication.User', 
-                                on_delete=models.CASCADE)
+    author = models.ForeignKey('authentication.User',
+                               on_delete=models.CASCADE)
     article = models.ForeignKey(Article, on_delete=models.CASCADE)
-    likes = models.ManyToManyField('authentication.User', 
+    likes = models.ManyToManyField('authentication.User',
                                    related_name='likes', blank=True)
     dislikes = models.ManyToManyField('authentication.User',
                                       related_name='dislikes', blank=True)
