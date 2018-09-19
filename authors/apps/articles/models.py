@@ -227,6 +227,7 @@ def send_notifications_to_all_users_on_comments(sender,
     if instance and created:
         receivers = list(User.objects.all())
         author = User.objects.get(email=instance.author)
+<<<<<<< HEAD
         article = Article.objects.get(author=author, id=instance.id)
         link = f'https://ah-leagueoflegends-staging.herokuapp.com/api/articles/{article.slug}/comments/{instance.id}'
         SendEmail(
@@ -260,10 +261,23 @@ def send_notifications_to_all_users_on_comments(sender,
                     "comment": instance,
                     "url_link": link,
                     "subscription": subscription
+=======
+        if author:
+            # article = Article.objects.get(author=author, id=instance.id)
+            # link = f'https://ah-leagueoflegends-staging.herokuapp.com/api/articles/{article.slug}/comments/{instance.id}'
+            SendEmail(
+                template="comment_notification.html",
+                context={
+                    "article": instance,
+                    # "url_link": link
+>>>>>>> [Feature #159965488] Update model to make travis build pass
                 },
                 subject=" has published a new article",
                 e_to=[u.email for u in receivers],
             ).send()
+<<<<<<< HEAD
 >>>>>>> [Feature #159965488] Update model to make travis build pass
 =======
 >>>>>>> [Feature #159965488]Upate models to enable users recieve email notifications
+=======
+>>>>>>> [Feature #159965488] Update model to make travis build pass
