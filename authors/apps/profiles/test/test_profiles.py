@@ -33,7 +33,7 @@ class ProfileTestCase(BaseTest):
     def retrieve_profiles(self, token):
         """Helper method to update an user bio"""
         return self.client.get(
-            '/api/profiles',
+            '/api/profiles/',
             HTTP_AUTHORIZATION='Bearer ' + token,
         )
 
