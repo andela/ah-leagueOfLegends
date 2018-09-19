@@ -8,13 +8,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.db.models import Avg, Count
 
-<<<<<<< HEAD
-=======
 
 from .models import Article, ArticleRatings
 from .renderers import ArticleJSONRenderer, RatingJSONRenderer
 from .serializers import ArticleSerializer, RatingSerializer
->>>>>>> [Feature #159965482] Implements rating of articles
 from rest_framework.pagination import LimitOffsetPagination
 from django.conf import settings
 
@@ -503,11 +500,9 @@ class DislikeComment(APIView):
             return Response({"message": "You undisliked this article."},
                              status=status.HTTP_200_OK)
 
-<<<<<<< HEAD
         comment.dislikes.add(request.user)
         return Response({"message": "You disliked this comment"},
                          status=status.HTTP_200_OK)
-=======
 class RateArticlesAPIView(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (RatingJSONRenderer,)
@@ -569,6 +564,3 @@ class RateArticlesAPIView(APIView):
             article=article).aggregate(Avg('rating')).get('rating__avg', 0)
         return Response(
             {"average_rating": average}, status=status.HTTP_201_CREATED)
-
-
->>>>>>> [Feature #159965482] Implements rating of articles

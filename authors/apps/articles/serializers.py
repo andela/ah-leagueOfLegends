@@ -2,12 +2,8 @@ from rest_framework import serializers
 from authors.apps.authentication.serializers import UserSerializer
 from authors.apps.profiles.serializers import ProfileSerializer
 
-<<<<<<< HEAD
-from .models import Article, Comment
-=======
-from .models import Article, ArticleRatings
+from .models import Article, Comment, ArticleRatings
 from django.db.models import Avg, Count
->>>>>>> [Feature #159965482] Implements rating of articles
 
 
 class ArticleSerializer(serializers.ModelSerializer):
@@ -54,12 +50,9 @@ class ArticleSerializer(serializers.ModelSerializer):
             'updated_at_date',
             'like',
             'dislike',
-<<<<<<< HEAD
             'favorited',
             'favoritesCount',
-=======
             'average_ratings',
->>>>>>> [Feature #159965482] Implements rating of articles
         )
 
     def create(self, validated_data):
@@ -95,7 +88,6 @@ class ArticleSerializer(serializers.ModelSerializer):
         serializer by returning the length of the dislike object."""
         # counts the number of children the dislike object has
         return obj.dislike.count()
-<<<<<<< HEAD
     
     def get_favorited(self, instance):
         request = self.context.get('request', None)
@@ -105,7 +97,11 @@ class ArticleSerializer(serializers.ModelSerializer):
             return False
         return request.user.profile.has_favorited(instance)
     
-    
+    def average_count(self, object):
+        average = ArticleRatings.objects.filter(
+            article=object).aggregate(Avg('rating')).get('rating__avg', 0)
+        return average
+
     def get_favorites_count(self, instance):
         return instance.favorited_by.count()
 
@@ -131,12 +127,6 @@ class CommentSerializer(serializers.ModelSerializer):
         article = Article.objects.get(slug=slug)
         comment = Comment.objects.create(article=article, author=author, **validated_data)
         return comment
-=======
-
-    def average_count(self, object):
-        average = ArticleRatings.objects.filter(
-            article=object).aggregate(Avg('rating')).get('rating__avg', 0)
-        return average
 
 
 class RatingSerializer(serializers.Serializer):
@@ -168,4 +158,3 @@ class RatingSerializer(serializers.Serializer):
             )
 
         return {"rating": rate}
->>>>>>> [Feature #159965482] Implements rating of articles

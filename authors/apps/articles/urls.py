@@ -25,7 +25,7 @@ urlpatterns = [
     path('articles/<slug>/comments', CommentsListCreateAPIView.as_view()),
     path('articles/<slug>/comments/<pk>', CommentRetrieveUpdateDestroy.as_view()),
     path('articles/<slug>/comments/<pk>/like', LikeComment.as_view()),
-    path('articles/<slug>/comments/<pk>/dislike', DislikeComment.as_view())
+    path('articles/<slug>/comments/<pk>/dislike', DislikeComment.as_view()),
     path('articles/<slug>/rate/', RateArticlesAPIView.as_view()),
 
 ]
