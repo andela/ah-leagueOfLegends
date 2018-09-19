@@ -98,4 +98,46 @@ class ReportArticleTestCase(ArticleTestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEquals(response.data['detail'], 'An article with that slug does not exist')
 
+    def test_if_admin_can_list_reports(self):
+        self.register_user()
+        res = self.client.post(
+            reverse('authentication:user_login'),
+            self.user_cred,
+            format='json')
+        token = res.data['token']
+        article = {
+            "article":
+                {
+                    "title": "How to feed your dragon",
+                    "description": "Wanna know how?",
+                    "body": "You don't believe?",
+                }
+        }
+        response = self.create_article(token, article)
 
+        self.assertEquals(status.HTTP_201_CREATED, response.status_code)
+        data = {"report": {"body": "A lot of plagiarism"}}
+        response = self.client.post(path='/api/articles/how-to-feed-your-dragon/report', data=data,
+                                    HTTP_AUTHORIZATION='Bearer ' + token, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        data = {
+            "user": {
+                "username": "Teddy",
+                "email": "teddykavooh@gmail.com",
+                "password": "HelloWorldKen12!3",
+                "is_superuser": True
+            }
+        }
+        response = self.client.post(path='/api/users/', data=data,
+                                    format='json')
+        print(response.data)
+        data = {"user": {"email": "teddykavooh@gmail.com", "password": "HelloWorldKen12!3"}
+                }
+        response = self.client.post(path='/api/users/login/', data=data,
+                                    format='json')
+        token = response.data['token']
+        response = self.client.get(path='/api/articles/how-to-feed-your-dragon/reports',
+                                   HTTP_AUTHORIZATION='Bearer ' + token, format='json')
+        print(response)
+        self.assertEquals(status.HTTP_200_OK, response.status_code)
