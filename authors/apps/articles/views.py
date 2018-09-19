@@ -176,7 +176,7 @@ class LikeAPIView(UpdateAPIView):
     permission_classes = (IsAuthenticated,)
     renderer_classes = (ArticleJSONRenderer,)
     serializer_class = ArticleSerializer
-    
+
     lookup_field = 'slug'
 
     def update(self, request, slug):
@@ -236,7 +236,7 @@ class DisLikeAPIView(UpdateAPIView):
             # If dislike does not exist, add dislike
             article.dislike.add(user.id)
             return Response({"message": "You Dislike this Article"}, status=status.HTTP_200_OK)
-    
+
 
 class ArticleFilter(filters.FilterSet):
     """
@@ -266,18 +266,20 @@ class ArticleFilter(filters.FilterSet):
                     'lookup_expr': 'icontains', },
             },
         }
+
+
 class ArticleSearchList(generics.ListAPIView):
     """ 
     Implements class to enable searching and filtering
     """
 
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     search_list = ['title', 'body',
                    'description', 'author__username', 'tagList']
-    filter_list = ['title', 'author__username', 'tagList',]
+    filter_list = ['title', 'author__username', 'tagList', ]
     queryset = Article.objects.all()
     serializer_class = ArticleSerializer
-    filter_backends = (DjangoFilterBackend, SearchFilter, )
+    filter_backends = (DjangoFilterBackend, SearchFilter,)
     filter_fields = filter_list
     search_fields = search_list
     filterset_class = ArticleFilter
@@ -328,8 +330,8 @@ class ArticlesFavoriteAPIView(APIView):
         serializer = self.serializer_class(article, context=serializer_context)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
-        
-        
+
+
 class CommentsListCreateAPIView(generics.ListCreateAPIView):
     '''
     View to create and list comments
@@ -341,7 +343,7 @@ class CommentsListCreateAPIView(generics.ListCreateAPIView):
     queryset = Comment.objects.select_related()
     serializer_class = CommentSerializer
     renderer_classes = (CommentJSONRenderer,)
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def filter_queryset(self, queryset):
         """Handle getting comments on an article."""
@@ -359,11 +361,10 @@ class CommentsListCreateAPIView(generics.ListCreateAPIView):
             serializer = self.serializer_class(comments, many=True)
 
             return Response(serializer.data,
-                             status=status.HTTP_200_OK)
+                            status=status.HTTP_200_OK)
         except Article.DoesNotExist:
 
             raise NotFound('An article with this slug does not exist.')
-
 
     def create(self, request, **kwargs):
         '''
@@ -376,13 +377,14 @@ class CommentsListCreateAPIView(generics.ListCreateAPIView):
             raise NotFound("An article with that slug does not exist")
         serializer_context = {"author": request.user, "slug": slug}
         serializer_data = request.data.get('comment', {})
-        serializer = self.serializer_class( 
-                    data=serializer_data,
-                    context=serializer_context)
+        serializer = self.serializer_class(
+            data=serializer_data,
+            context=serializer_context)
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
-        return Response(serializer.data, status=status.HTTP_201_CREATED )
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
 class CommentRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
     '''
@@ -390,9 +392,9 @@ class CommentRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
     '''
     lookup_url_kwarg = 'pk'
     serializer_class = CommentSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Comment.objects.all()
-    
+
     def retrieve(self, request, **kwargs):
         '''
         Get single comment
@@ -413,7 +415,6 @@ class CommentRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
 
         return Response({"comment": serializer.data}, status=status.HTTP_200_OK)
 
-
     def destroy(self, request, **kwargs):
         '''
         Delete comment
@@ -426,20 +427,21 @@ class CommentRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
 
         if comment.author.id != request.user.id:
             return Response({
-                "error": "you can not delete a comment that does not belong to you"}, 
+                "error": "you can not delete a comment that does not belong to you"},
                 status=status.HTTP_401_UNAUTHORIZED)
         comment.delete()
 
         return Response({
-            "message": "Your comment has been successfully deleted"}, 
+            "message": "Your comment has been successfully deleted"},
             status=status.HTTP_200_OK)
+
 
 class LikeComment(APIView):
     '''
     Like a comment
     '''
     serializer_class = CommentSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (CommentJSONRenderer,)
 
     def put(self, request, **kwargs):
@@ -462,11 +464,11 @@ class LikeComment(APIView):
         if request.user in comment.likes.all():
             comment.likes.remove(request.user)
             return Response({"message": "You unliked this article."},
-                             status=status.HTTP_200_OK)
+                            status=status.HTTP_200_OK)
 
         comment.likes.add(request.user)
         return Response({"message": "You liked this comment"},
-                         status=status.HTTP_200_OK)
+                        status=status.HTTP_200_OK)
 
 
 class DislikeComment(APIView):
@@ -474,7 +476,7 @@ class DislikeComment(APIView):
     dislike a comment
     '''
     serializer_class = CommentSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (CommentJSONRenderer,)
 
     def put(self, request, **kwargs):
@@ -498,10 +500,11 @@ class DislikeComment(APIView):
         if request.user in comment.dislikes.all():
             comment.dislikes.remove(request.user)
             return Response({"message": "You undisliked this article."},
-                             status=status.HTTP_200_OK)
+                            status=status.HTTP_200_OK)
 
         comment.dislikes.add(request.user)
         return Response({"message": "You disliked this comment"},
+<<<<<<< HEAD
                          status=status.HTTP_200_OK)
 class RateArticlesAPIView(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -564,3 +567,36 @@ class RateArticlesAPIView(APIView):
             article=article).aggregate(Avg('rating')).get('rating__avg', 0)
         return Response(
             {"average_rating": average}, status=status.HTTP_201_CREATED)
+=======
+                        status=status.HTTP_200_OK)
+
+
+class BookmarkAPIView(UpdateAPIView):
+    permission_classes = (IsAuthenticated,)
+    renderer_classes = (ArticleJSONRenderer,)
+    serializer_class = ArticleSerializer
+
+    lookup_field = 'slug'
+
+    def update(self, request, slug):
+        """Update the bookmark status on a particular article."""
+        user = request.user
+        profile = user.profile
+
+        # Checks if the article exists
+        try:
+            article = Article.objects.get(slug=slug)
+        except Article.DoesNotExist:
+            raise NotFound('An article with this slug does not exist.')
+
+        bookmarks = user.profile.bookmarks.all()
+        # Bookmarks article, if article is not bookmarked
+        if article not in bookmarks:
+            user.profile.bookmarks.add(article)
+            response = 'Added to Bookmarks'
+        # Remove bookmark, if one exists
+        else:
+            user.profile.bookmarks.remove(article)
+            response = 'Removed from Bookmarks'
+        return Response(response, status=status.HTTP_200_OK)
+>>>>>>> [Feature #159965498] Add bookmark view
