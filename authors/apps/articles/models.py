@@ -157,14 +157,15 @@ def send_notifications_to_all_users_on_comments(sender,
     if instance and created:
         receivers = list(User.objects.all())
         author = User.objects.get(email=instance.author)
-        article = Article.objects.get(author=author, id=instance.id)
-        link = f'https://ah-leagueoflegends-staging.herokuapp.com/api/articles/{article.slug}/comments/{instance.id}'
-        SendEmail(
-            template="comment_notification.html",
-            context={
-                "article": instance,
-                "url_link": link
-            },
-            subject=" has published a new article",
-            e_to=[u.email for u in receivers],
-        ).send()
+        if author:
+            # article = Article.objects.get(author=author, id=instance.id)
+            # link = f'https://ah-leagueoflegends-staging.herokuapp.com/api/articles/{article.slug}/comments/{instance.id}'
+            SendEmail(
+                template="comment_notification.html",
+                context={
+                    "article": instance,
+                    # "url_link": link
+                },
+                subject=" has published a new article",
+                e_to=[u.email for u in receivers],
+            ).send()
