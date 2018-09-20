@@ -1,3 +1,4 @@
+import os
 from django.db import models
 from django.utils.text import slugify
 from django.contrib.postgres.fields import ArrayField
@@ -131,11 +132,13 @@ def send_notifications_to_all_users(sender,
     """
 
     if instance and created:
-        receivers = list(User.objects.all())
-        # print(instance.author.profile.get_followers(instance.author.profile))
-        # print(k)
-        link = f'https://ah-leagueoflegends-staging.herokuapp.com/api/articles/{instance.slug}'
-        subscription = f'https://ah-leagueoflegends-staging.herokuapp.com/api/users/subscription/'
+        # receivers = list(User.objects.all())
+        users_following = instance.author.profile.get_followers(
+                                                    instance.author.profile)
+        link = f'{os.getenv("HEROKU_BACKEND_URL")}\
+        /api/articles/{instance.slug}'
+        subscription = f'{os.getenv("HEROKU_BACKEND_URL")}\
+        /api/users/subscription/'
         SendEmail(
             template="create_article.html",
             context={
@@ -145,13 +148,13 @@ def send_notifications_to_all_users(sender,
                 "subscription": subscription
             },
             subject=" has published a new article",
-            e_to=[u.email for u in receivers],
+            e_to=[u.email for u in users_following],
         ).send()
 
 
 @receiver(post_save, sender=Comment)
 def send_notifications_to_all_users_on_comments(sender,
-                                            instance,
+                                                instance,
                                                 created,
                                                 *args, **kwargs):
     """Create a Signal that sends email to all users that follow the author.
@@ -162,14 +165,17 @@ def send_notifications_to_all_users_on_comments(sender,
     """
 
     if instance and created:
-        receivers = list(User.objects.all())
+        # receivers = list(User.objects.all())
+        users_following = instance.author.profile.get_followers(
+                                                    instance.author.profile)
         author = User.objects.get(email=instance.author)
         if author:
             comment = Comment.objects.get(id=instance.id)
-            link = f'https://ah-leagueoflegends-staging.herokuapp.com/api/articles/{comment.article.slug}/comments/{instance.id}'
+            link = f'{os.getenv("HEROKU_BACKEND_URL")}\
+            /api/articles/{comment.article.slug}/comments/{instance.id}'
             uuid = urlsafe_base64_encode(force_bytes(author.id)
                                          ).decode("utf-8")
-            subscription = f'http://127.0.0.1:8000/api/users/subscription/{uuid}'
+            subscription = f'{os.getenv("HEROKU_BACKEND_URL")}/{uuid}'
             SendEmail(
                 template="comment_notification.html",
                 context={
@@ -179,5 +185,5 @@ def send_notifications_to_all_users_on_comments(sender,
                     "subscription": subscription
                 },
                 subject=" has published a new article",
-                e_to=[u.email for u in receivers],
+                e_to=[u.email for u in users_following],
             ).send()
