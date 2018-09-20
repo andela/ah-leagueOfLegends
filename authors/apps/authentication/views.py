@@ -14,7 +14,7 @@ from .models import User
 from .renderers import UserJSONRenderer
 from .serializers import (
     LoginSerializer, RegistrationSerializer, UserSerializer,
-    EmailSerializer, ResetUserPasswordSerializer
+    EmailSerializer, ResetUserPasswordSerializer, SubscriptionSerializer
 
 )
 from authors.settings import EMAIL_HOST_USER
@@ -266,3 +266,31 @@ class SocialAuth(CreateAPIView):
         output = serializer.data
         output["token"] = our_token
         return Response(output, status=status.HTTP_200_OK)
+
+
+class SubscribeAPIView(APIView):
+    """Class that will enable user subscribe and unsubscribe from an article.
+
+    Arguments:
+        APIView {[request]} -- [contains all the payload]
+    """
+    permission_classes = (AllowAny,)
+    serializer_class = SubscriptionSerializer
+
+    def get(self, request, uuid):
+        print(uuid)
+        uuid = force_text(urlsafe_base64_decode(uuid))
+        subscribe_user = User.objects.get(id=uuid)
+        if subscribe_user.subscribed:
+            subscribe_user.subscribed = False
+            subscribe_user.save()
+            return Response({
+                'message': "Successfully Unsubscribed"
+            }, status=status.HTTP_200_OK)
+
+        elif subscribe_user.subscribed == False:
+            subscribe_user.subscribed = True
+            subscribe_user.save()
+            return Response({
+                'message': "Successfully Subscribed"
+            }, status=status.HTTP_200_OK)

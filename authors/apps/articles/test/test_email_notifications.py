@@ -24,3 +24,20 @@ class EmailNotificationTestCase(ArticleTestCase):
                                HTTP_AUTHORIZATION='Bearer ' + token)
         self.assertEquals(len(mail.outbox), 3)
 
+    def test_user_unsubscribes_and_subscribes_to_email_notifications(self):
+        response = self.register_user()
+        response = self.login_user()
+        token = response.data['token']
+        response = self.client.put('/api/users/subscription/',
+                                   HTTP_AUTHORIZATION='Bearer ' + token
+                                   )
+        expected = 'Successfully Unsubscribed'
+        self.assertEquals(expected, response.data['message'])
+        """Test user can subscribe back after subscribing.
+        """
+        response = self.client.put('/api/users/subscription/',
+                                   HTTP_AUTHORIZATION='Bearer ' + token
+                                   )
+        expected = 'Successfully Subscribed'
+        self.assertEquals(expected, response.data['message'])
+

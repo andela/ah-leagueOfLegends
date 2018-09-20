@@ -267,3 +267,10 @@ class SocialAuthSerializer(serializers.Serializer):
     """Serializers social_auth requests"""
     provider = serializers.CharField(max_length=255, required=True)
     access_token = serializers.CharField(max_length=1024, required=True, trim_whitespace=True)
+
+
+class SubscriptionSerializer(serializers.Serializer):
+
+    def validate(self, validated_data):
+        print(validated_data)
+        return False
