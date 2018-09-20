@@ -36,6 +36,13 @@ class BaseTest(APITestCase):
                     "password": "J!ake123456"
                 }
         }
+        self.user_cred3 = {
+            "user": {
+                    "email": "jakejakejake@gmail.com",
+                    "username": "jayajaya",
+                    "password": "J!ake123456"
+                }
+        }
 
         self.user_cred_wrong_pass = {
             "user": {

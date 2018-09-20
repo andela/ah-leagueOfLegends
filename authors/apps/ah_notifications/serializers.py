@@ -9,6 +9,9 @@ from django.utils import timezone
 
 
 class NotificationSerializer(serializers.ModelSerializer):
+    '''
+    notification serializer
+    '''
     actor =  UserSerializer('actor_object_id')
     action_object = ArticleSerializer('action_object_object_id')
 
