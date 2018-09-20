@@ -12,6 +12,7 @@ from django.utils.encoding import force_bytes, force_text
 
 
 from authors.apps.authentication.models import User
+from authors.apps.profiles.models import Profile
 from authors.apps.core.email_with_celery import SendEmail
 
 
@@ -145,6 +146,8 @@ def send_notifications_to_all_users(sender,
 
     if instance and created:
         receivers = list(User.objects.all())
+        # print(instance.author.profile.get_followers(instance.author.profile))
+        # print(k)
         link = f'https://ah-leagueoflegends-staging.herokuapp.com/api/articles/{instance.slug}'
         subscription = f'https://ah-leagueoflegends-staging.herokuapp.com/api/users/subscription/'
         SendEmail(
@@ -173,9 +176,7 @@ def send_notifications_to_all_users_on_comments(sender,
     """
 
     if instance and created:
-        # import pdb; pdb.set_trace()
         receivers = list(User.objects.all())
-        print(receivers)
         author = User.objects.get(email=instance.author)
 <<<<<<< HEAD
         article = Article.objects.get(author=author, id=instance.id)
@@ -248,7 +249,6 @@ def send_notifications_to_all_users_on_comments(sender,
 >>>>>>> [Feature #159965488]Upate models to enable users recieve email notifications
 =======
         if author:
-            # article = Article.objects.get(author=author, id=instance.id)
             comment = Comment.objects.get(id=instance.id)
             link = f'https://ah-leagueoflegends-staging.herokuapp.com/api/articles/{comment.article.slug}/comments/{instance.id}'
             uuid = urlsafe_base64_encode(force_bytes(author.id)

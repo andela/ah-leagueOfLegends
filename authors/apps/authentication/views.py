@@ -278,7 +278,6 @@ class SubscribeAPIView(APIView):
     serializer_class = SubscriptionSerializer
 
     def get(self, request, uuid):
-        print(uuid)
         uuid = force_text(urlsafe_base64_decode(uuid))
         subscribe_user = User.objects.get(id=uuid)
         if subscribe_user.subscribed:
