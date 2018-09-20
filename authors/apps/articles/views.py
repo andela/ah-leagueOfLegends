@@ -2,7 +2,7 @@ from rest_framework import generics, mixins, status, viewsets
 from rest_framework.exceptions import NotFound
 from rest_framework.generics import UpdateAPIView
 from rest_framework.permissions import (
-    AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
+    AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly, IsAdminUser
 )
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -21,9 +21,9 @@ from django.views.generic import ListView
 import django_filters
 from django_filters import rest_framework as filters
 from django.contrib.postgres.fields import ArrayField
-from .models import Article, Comment
-from .renderers import ArticleJSONRenderer, CommentJSONRenderer
-from .serializers import ArticleSerializer, CommentSerializer
+from .models import Article, Comment, Report
+from .renderers import ArticleJSONRenderer, CommentJSONRenderer, ReportJSONRenderer
+from .serializers import ArticleSerializer, CommentSerializer, ReportSerializer
 
 
 class ArticleViewSet(mixins.CreateModelMixin,
@@ -505,7 +505,6 @@ class DislikeComment(APIView):
         return Response({"message": "You disliked this comment"},
                         status=status.HTTP_200_OK)
 
-
 class RateArticlesAPIView(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (RatingJSONRenderer,)
@@ -597,3 +596,64 @@ class BookmarkAPIView(UpdateAPIView):
             user.profile.bookmarks.remove(article)
             response = 'Removed from Bookmarks'
         return Response(response, status=status.HTTP_200_OK)
+
+class ReportCreateAPIView(generics.CreateAPIView):
+    """Facilitate create reports"""
+
+    lookup_field = 'article__slug'
+    lookup_url_kwarg = 'slug'
+
+    queryset = Report.objects.select_related()
+    serializer_class = ReportSerializer
+    renderer_classes = (ReportJSONRenderer,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def filter_queryset(self, queryset):
+        """Handle getting reports on an article."""
+        filters = {self.lookup_field: self.kwargs[self.lookup_url_kwarg]}
+        return queryset.filter(**filters)
+
+    def create(self, request, **kwargs):
+        """Create reports to an article"""
+        slug = self.kwargs['slug']
+        try:
+            article = Article.objects.get(slug=slug)
+        except Article.DoesNotExist:
+            raise NotFound("An article with that slug does not exist")
+        serializer_context = {"author": request.user, "slug": slug}
+        serializer_data = request.data.get('report', {})
+        serializer = self.serializer_class(data=serializer_data, context=serializer_context)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class ReportListAPIView(generics.ListAPIView):
+    """Facilitate list reports"""
+
+    lookup_field = 'article__slug'
+    lookup_url_kwarg = 'slug'
+
+    queryset = Report.objects.select_related()
+    serializer_class = ReportSerializer
+    renderer_classes = (ReportJSONRenderer,)
+    permission_classes = (IsAdminUser,)
+
+    def filter_queryset(self, queryset):
+        """Handle getting reports on an article."""
+        filters = {self.lookup_field: self.kwargs[self.lookup_url_kwarg]}
+        return queryset.filter(**filters)
+
+    def get(self, request, **kwargs):
+        """Get all reports to an article"""
+        slug = self.kwargs['slug']
+        try:
+            article = Article.objects.get(slug=slug)
+            reports = Report.objects.all().filter(article=article.id)
+            serializer = self.serializer_class(reports, many=True)
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Article.DoesNotExist:
+
+            raise NotFound('An article with this slug does not exist.')

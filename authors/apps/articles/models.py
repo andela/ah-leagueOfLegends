@@ -109,3 +109,13 @@ class ArticleRatings(models.Model):
         Article,  on_delete=models.CASCADE, related_name="articlerating")
     rating = models.IntegerField()
 
+
+
+class Report(TimestampedModel):
+    """Reporting an article model"""
+    body = models.TextField()
+    author = models.ForeignKey('authentication.User', on_delete=models.CASCADE)
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.body

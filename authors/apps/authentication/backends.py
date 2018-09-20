@@ -58,12 +58,14 @@ class JWTAuthentication(authentication.BaseAuthentication):
          Private method tries to authenticate a user based on token provided.
          Returns a jwt token and a user if successful.
         """
+        # user = request.user
         try:
             payload = jwt.decode(token, settings.SECRET_KEY)
         except:
             msg = 'Invalid token. Could not decode token. Possibly Damaged.'
             raise exceptions.AuthenticationFailed(msg)
 
+        user = User.objects.get(pk=payload['id'])
         try:
             user = User.objects.get(pk=payload['id'])
         except user.DoesNotExist:
