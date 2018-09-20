@@ -66,10 +66,15 @@ class ArticleSerializer(serializers.ModelSerializer):
         ''' Method creates an article based on validated data'''
 
         author = self.context.get('author', None)
+        user = author.profile
+        followers = user.get_followers(user)
+        recipients = []
+        for follower in followers:
+            recipients.append(follower.user)
 
         article = Article.objects.create(**validated_data)
 
-        notify.send(author, recipient=User.objects.all(), verb="created a new article", action_object=article)
+        notify.send(author, recipient=recipients, verb="created a new article", action_object=article)
         return article
 
     def get_created_at(self, instance):
