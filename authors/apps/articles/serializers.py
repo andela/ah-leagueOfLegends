@@ -163,11 +163,8 @@ class CommentSerializer(serializers.ModelSerializer):
         article = Article.objects.get(slug=slug)
         comment = Comment.objects.create(article=article,
                                          author=author, **validated_data)
-        recipients = []
-        for profile in Profile.objects.all():
-            if profile.has_favorited(article):
-                user = User.objects.get(pk=profile.id)
-                recipients.append(user)
+        recipients = [User.objects.get(pk=profile.id) for profile in \
+                    Profile.objects.all() if profile.has_favorited(article) ]
         notify.send(author, recipient=recipients, 
                     verb="commented on", action_object=article)
         return comment
