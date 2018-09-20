@@ -150,7 +150,7 @@ def send_notifications_to_all_users(sender,
                     "url_link": link,
                     "subscription": subscription
                 },
-                subject=" has published a new article",
+                subject="New Article",
                 e_to=[u.email for u in users_follow],
             ).send()
 
@@ -168,10 +168,9 @@ def send_notifications_to_all_users_on_comments(sender,
     """
 
     if instance and created:
-        # receivers = list(User.objects.all())
-        users_following = instance.author.profile.get_followers(
-                                                    instance.author.profile)
-        users_follow = [u.user for u in users_following]
+        user_following = Profile.objects.all()
+        user_follow = [u.user for u in user_following if u.has_favorited(instance.article) and u.user.subscribed]
+        chek = [u.user for u in user_following if u.user.subscribed]
         author = User.objects.get(email=instance.author)
         if author:
             comment = Comment.objects.get(id=instance.id)
@@ -187,6 +186,6 @@ def send_notifications_to_all_users_on_comments(sender,
                     "url_link": link,
                     "subscription": subscription
                 },
-                subject=" has published a new article",
-                e_to=[u.email for u in users_follow],
+                subject=" New Comment.",
+                e_to=[u.email for u in user_follow],
             ).send()
