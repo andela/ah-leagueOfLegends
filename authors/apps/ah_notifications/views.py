@@ -18,6 +18,9 @@ class NotificationViewList(APIView):
 
     def get(self, request):
         queryset = self.request.user.notifications.unread()
+        for notification in queryset:
+            notification.mark_as_read()
+
         serializer = self.serializer_class(
             queryset,
             many=True
