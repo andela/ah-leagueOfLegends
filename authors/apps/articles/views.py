@@ -6,11 +6,15 @@ from rest_framework.permissions import (
 )
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.db.models import Avg, Count
 
+
+from .models import Article, ArticleRatings
+from .renderers import ArticleJSONRenderer, RatingJSONRenderer
+from .serializers import ArticleSerializer, RatingSerializer
 from rest_framework.pagination import LimitOffsetPagination
-from django.db.models import Q
 from django.conf import settings
-from django.contrib.postgres.search import TrigramSimilarity
+
 from django_filters.rest_framework import DjangoFilterBackend
 import django_filters
 from rest_framework.filters import SearchFilter
@@ -499,3 +503,64 @@ class DislikeComment(APIView):
         comment.dislikes.add(request.user)
         return Response({"message": "You disliked this comment"},
                          status=status.HTTP_200_OK)
+class RateArticlesAPIView(APIView):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    renderer_classes = (RatingJSONRenderer,)
+    serializer_class = RatingSerializer
+
+    def post(self, request, slug):
+        """
+        Method that posts users article ratings
+        """
+        rating = request.data.get("rate", {})
+
+        rating_1 = rating.get('rating', None)
+      
+        if not isinstance(rating_1, int):
+            return Response(
+                {'message': 'Rating should be an integer'},
+                status=status.HTTP_401_UNAUTHORIZED)
+        if rating_1 <1 or rating_1 > 5:
+            return Response(
+                {'error': 'Rating should be between 1 and 5'},
+                status=status.HTTP_401_UNAUTHORIZED)
+        
+        serializer = self.serializer_class(data=rating)
+        serializer.is_valid(raise_exception=True)
+        rating = serializer.data.get('rating')
+        try:
+            article = Article.objects.get(slug=slug)
+        except Article.DoesNotExist:
+            raise NotFound("An article with this slug does not exist")
+
+        current_ratings = ArticleRatings.objects.filter(rater=request.user,
+                                         article=article).first()
+        article_rating = Article.objects.filter(slug=slug).first()
+
+        if request.user ==  article.author:
+            return Response(
+                {'message': 'You cannot rate your article'},
+
+                status=status.HTTP_401_UNAUTHORIZED)
+        # No previous ratings, so just take the rating and save to the db
+        # after aggregating
+
+        # Check the existing number or rating
+        # SELECT count(ID) FROM RATINGS WHERE ARTICLE = article and Rater = user
+        user = request.user
+        count = ArticleRatings.objects.filter(
+            rater=user, article=article).count()
+        # User has already rated the article
+        if count >= 1:
+            return Response(
+            {"Error": "You can only rate an article once."}, 
+            status=status.HTTP_401_UNAUTHORIZED)
+        
+        article_rating = ArticleRatings(article=article,
+            rating=rating_1, rater=user)
+        article_rating.save()
+        # Get the ratings avarage
+        average = ArticleRatings.objects.filter(
+            article=article).aggregate(Avg('rating')).get('rating__avg', 0)
+        return Response(
+            {"average_rating": average}, status=status.HTTP_201_CREATED)

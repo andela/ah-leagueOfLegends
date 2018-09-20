@@ -47,6 +47,7 @@ class Article(TimestampedModel):
         'authentication.User', on_delete=models.CASCADE, 
         related_name='articles'
     )
+    ratings_counter = models.IntegerField(default=0)
 
     prepopulated_fields = {"slug": ("title",)}
 
@@ -67,6 +68,12 @@ class Article(TimestampedModel):
         '''
         self.slug = self._get_unique_slug()
         super(Article, self).save(*args, **kwargs)
+
+    def updaterate(self, rating):
+        ''' 
+        '''
+        self.ratings_counter = rating
+        
 
     def __str__(self):
 
@@ -89,3 +96,15 @@ class Comment(TimestampedModel):
 
     def __str__(self):
         return self.body
+class ArticleRatings(models.Model):
+    """
+    Defines the ratings fields for a rater
+    """
+    rater = models.ForeignKey(
+        'authentication.User', on_delete=models.CASCADE, 
+        related_name='articlesrating'
+    )
+    article = models.ForeignKey(
+        Article,  on_delete=models.CASCADE, related_name="articlerating")
+    rating = models.IntegerField()
+

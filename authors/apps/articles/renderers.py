@@ -43,3 +43,14 @@ class CommentJSONRenderer(JSONRenderer):
         return json.dumps({
             'comment': 'No comment found.'
         })
+
+class RatingJSONRenderer(JSONRenderer):
+    charset = 'utf-8'
+
+    def render(self, data, media_type=None, renderer_context=None):
+        """
+        Render ratings data.
+        """
+        return json.dumps({
+            'rate': data,
+        })
