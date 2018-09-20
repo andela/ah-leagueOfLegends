@@ -149,6 +149,9 @@ class CommentSerializer(serializers.ModelSerializer):
         )
 
     def create(self, validated_data):
+        '''
+        create a new comment instance
+        '''
         slug = self.context.get('slug')
         author = self.context.get('author', None)
         article = Article.objects.get(slug=slug)
