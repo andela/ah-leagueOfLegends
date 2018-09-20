@@ -1,19 +1,12 @@
-import os
 from django.db import models
 from django.utils.text import slugify
 from django.contrib.postgres.fields import ArrayField
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from notifications.signals import notify
-<<<<<<< HEAD
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes, force_text
-=======
->>>>>>> [Feature #159965488]Upate models to enable users recieve email notifications
 
 
 from authors.apps.authentication.models import User
-from authors.apps.profiles.models import Profile
 from authors.apps.core.email_with_celery import SendEmail
 
 
@@ -123,8 +116,6 @@ class ArticleRatings(models.Model):
 
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 class Report(TimestampedModel):
     """Reporting an article model"""
     body = models.TextField()
@@ -133,160 +124,3 @@ class Report(TimestampedModel):
 
     def __str__(self):
         return self.body
-=======
-@receiver(post_save, sender=Article)
-def send_notifications_to_all_users(sender,
-                                    instance,
-                                    created, *args, **kwargs):
-    """Create a Signal that sends email to all users that follow the author.
-
-    Arguments:
-        sender {[type]} -- [Instance of ]
-        created {[type]} -- [If the article is posted.]
-    """
-
-    if instance and created:
-        # receivers = list(User.objects.all())
-        users_following = instance.author.profile.get_followers(
-                                                    instance.author.profile)
-        users_follow = [u.user for u in users_following]
-        link = f'{os.getenv("HEROKU_BACKEND_URL")}/api/articles/{instance.slug}'
-        users_foll = [u.user.id for u in users_following]
-        if users_foll:
-            uuid = urlsafe_base64_encode(force_bytes(users_foll[0])
-                                         ).decode("utf-8")
-            subscription = f'{os.getenv("HEROKU_BACKEND_URL")}/api/users/subscription/{uuid}/'
-            SendEmail(
-                template="create_article.html",
-                context={
-                    "article": instance,
-                    "author": instance.author,
-                    "url_link": link,
-                    "subscription": subscription
-                },
-                subject=" has published a new article",
-                e_to=[u.email for u in users_follow],
-            ).send()
-
-
-@receiver(post_save, sender=Comment)
-def send_notifications_to_all_users_on_comments(sender,
-                                                instance,
-                                                created,
-                                                *args, **kwargs):
-    """Create a Signal that sends email to all users that follow the author.
-
-    Arguments:
-        sender {[type]} -- [Instance of ]
-        created {[type]} -- [If the article is posted.]
-    """
-
-    if instance and created:
-        # receivers = list(User.objects.all())
-        users_following = instance.author.profile.get_followers(
-                                                    instance.author.profile)
-        users_follow = [u.user for u in users_following]
-        author = User.objects.get(email=instance.author)
-<<<<<<< HEAD
-        article = Article.objects.get(author=author, id=instance.id)
-        link = f'https://ah-leagueoflegends-staging.herokuapp.com/api/articles/{article.slug}/comments/{instance.id}'
-        SendEmail(
-            template="comment_notification.html",
-            context={
-                "article": instance,
-                "url_link": link
-=======
-@receiver(post_save, sender=Article)
-def send_notifications_to_all_users(sender,
-                                    instance,
-                                    created, *args, **kwargs):
-    """Create a Signal that sends email to all users that follow the author.
-
-    Arguments:
-        sender {[type]} -- [Instance of ]
-        created {[type]} -- [If the article is posted.]
-    """
-
-    if instance and created:
-        receivers = list(User.objects.all())
-        link = f'https://ah-leagueoflegends-staging.herokuapp.com/api/articles/{instance.slug}'
-        SendEmail(
-            template="create_article.html",
-            context={
-                "article": instance,
-                "author": instance.author,
-                "url_link": link
-            },
-            subject=" has published a new article",
-            e_to=[u.email for u in receivers],
-        ).send()
-
-
-@receiver(post_save, sender=Comment)
-def send_notifications_to_all_users_on_comments(sender,
-                                            instance,
-                                                created,
-                                                *args, **kwargs):
-    """Create a Signal that sends email to all users that follow the author.
-
-    Arguments:
-        sender {[type]} -- [Instance of ]
-        created {[type]} -- [If the article is posted.]
-    """
-
-    if instance and created:
-        receivers = list(User.objects.all())
-        author = User.objects.get(email=instance.author)
-<<<<<<< HEAD
-        article = Article.objects.get(author=author, id=instance.id)
-        link = f'https://ah-leagueoflegends-staging.herokuapp.com/api/articles/{article.slug}/comments/{instance.id}'
-        SendEmail(
-            template="comment_notification.html",
-            context={
-<<<<<<< HEAD
-                "article": instance
->>>>>>> [Feature #159965488]Upate models to enable users recieve email notifications
-=======
-                "article": instance,
-                "url_link": link
->>>>>>> [Feature #159965488] Add templates that links the user to the actual comment written.
-            },
-            subject=" has published a new article",
-            e_to=[u.email for u in receivers],
-        ).send()
-<<<<<<< HEAD
->>>>>>> [Feature #159965488]Upate models to enable users recieve email notifications
-=======
-        if author:
-            comment = Comment.objects.get(id=instance.id)
-            link = f'{os.getenv("HEROKU_BACKEND_URL")}/api/articles/{comment.article.slug}/comments/{instance.id}'
-            uuid = urlsafe_base64_encode(force_bytes(author.id)
-                                         ).decode("utf-8")
-            subscription = f'{os.getenv("HEROKU_BACKEND_URL")}/api/users/subscription/{uuid}/'
-            SendEmail(
-                template="comment_notification.html",
-                context={
-                    "article": instance.article,
-                    "comment": instance,
-                    "url_link": link,
-                    "subscription": subscription
-=======
-        if author:
-            # article = Article.objects.get(author=author, id=instance.id)
-            # link = f'https://ah-leagueoflegends-staging.herokuapp.com/api/articles/{article.slug}/comments/{instance.id}'
-            SendEmail(
-                template="comment_notification.html",
-                context={
-                    "article": instance,
-                    # "url_link": link
->>>>>>> [Feature #159965488] Update model to make travis build pass
-                },
-                subject=" has published a new article",
-                e_to=[u.email for u in users_follow],
-            ).send()
-<<<<<<< HEAD
->>>>>>> [Feature #159965488] Update model to make travis build pass
-=======
->>>>>>> [Feature #159965488]Upate models to enable users recieve email notifications
-=======
->>>>>>> [Feature #159965488] Update model to make travis build pass
