@@ -6,11 +6,7 @@ from rest_framework.routers import DefaultRouter
 from .views import (ArticleViewSet, LikeAPIView, DisLikeAPIView,
                     ArticleSearchList, ArticlesFavoriteAPIView,
                     CommentsListCreateAPIView, CommentRetrieveUpdateDestroy,
-<<<<<<< HEAD
-                    LikeComment, DislikeComment, RateArticlesAPIView)
-=======
-                    LikeComment, DislikeComment, BookmarkAPIView)
->>>>>>> [Feature #159965498] Add bookmark url
+                    LikeComment, DislikeComment, RateArticlesAPIView, BookmarkAPIView)
 
 router = DefaultRouter(trailing_slash=False)
 router.register(r'articles', ArticleViewSet, base_name="fetch_articles")

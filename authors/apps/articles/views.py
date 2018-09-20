@@ -8,7 +8,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.db.models import Avg, Count
 
-
 from .models import Article, ArticleRatings
 from .renderers import ArticleJSONRenderer, RatingJSONRenderer
 from .serializers import ArticleSerializer, RatingSerializer
@@ -504,8 +503,9 @@ class DislikeComment(APIView):
 
         comment.dislikes.add(request.user)
         return Response({"message": "You disliked this comment"},
-<<<<<<< HEAD
-                         status=status.HTTP_200_OK)
+                        status=status.HTTP_200_OK)
+
+
 class RateArticlesAPIView(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (RatingJSONRenderer,)
@@ -518,16 +518,16 @@ class RateArticlesAPIView(APIView):
         rating = request.data.get("rate", {})
 
         rating_1 = rating.get('rating', None)
-      
+
         if not isinstance(rating_1, int):
             return Response(
                 {'message': 'Rating should be an integer'},
                 status=status.HTTP_401_UNAUTHORIZED)
-        if rating_1 <1 or rating_1 > 5:
+        if rating_1 < 1 or rating_1 > 5:
             return Response(
                 {'error': 'Rating should be between 1 and 5'},
                 status=status.HTTP_401_UNAUTHORIZED)
-        
+
         serializer = self.serializer_class(data=rating)
         serializer.is_valid(raise_exception=True)
         rating = serializer.data.get('rating')
@@ -537,10 +537,10 @@ class RateArticlesAPIView(APIView):
             raise NotFound("An article with this slug does not exist")
 
         current_ratings = ArticleRatings.objects.filter(rater=request.user,
-                                         article=article).first()
+                                                        article=article).first()
         article_rating = Article.objects.filter(slug=slug).first()
 
-        if request.user ==  article.author:
+        if request.user == article.author:
             return Response(
                 {'message': 'You cannot rate your article'},
 
@@ -556,19 +556,17 @@ class RateArticlesAPIView(APIView):
         # User has already rated the article
         if count >= 1:
             return Response(
-            {"Error": "You can only rate an article once."}, 
-            status=status.HTTP_401_UNAUTHORIZED)
-        
+                {"Error": "You can only rate an article once."},
+                status=status.HTTP_401_UNAUTHORIZED)
+
         article_rating = ArticleRatings(article=article,
-            rating=rating_1, rater=user)
+                                        rating=rating_1, rater=user)
         article_rating.save()
         # Get the ratings avarage
         average = ArticleRatings.objects.filter(
             article=article).aggregate(Avg('rating')).get('rating__avg', 0)
         return Response(
             {"average_rating": average}, status=status.HTTP_201_CREATED)
-=======
-                        status=status.HTTP_200_OK)
 
 
 class BookmarkAPIView(UpdateAPIView):
@@ -599,4 +597,3 @@ class BookmarkAPIView(UpdateAPIView):
             user.profile.bookmarks.remove(article)
             response = 'Removed from Bookmarks'
         return Response(response, status=status.HTTP_200_OK)
->>>>>>> [Feature #159965498] Add bookmark view

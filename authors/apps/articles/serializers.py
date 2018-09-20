@@ -52,11 +52,8 @@ class ArticleSerializer(serializers.ModelSerializer):
             'dislike',
             'favorited',
             'favoritesCount',
-<<<<<<< HEAD
             'average_ratings',
-=======
             'bookmarked',
->>>>>>> [Feature #159965498] Add bookmarked field to the ArticleSerializers
         )
 
     def create(self, validated_data):
@@ -100,13 +97,11 @@ class ArticleSerializer(serializers.ModelSerializer):
         if not request.user.is_authenticated:
             return False
         return request.user.profile.has_favorited(instance)
-<<<<<<< HEAD
-    
+
     def average_count(self, object):
         average = ArticleRatings.objects.filter(
             article=object).aggregate(Avg('rating')).get('rating__avg', 0)
         return average
-=======
 
     def get_bookmarks(self, instance):
         """ Sets bookmarked as True or False"""
@@ -125,7 +120,6 @@ class ArticleSerializer(serializers.ModelSerializer):
             bookmarked = False
 
         return bookmarked
->>>>>>> [Feature #159965498] Add bookmarked field to the ArticleSerializers
 
     def get_favorites_count(self, instance):
         return instance.favorited_by.count()
