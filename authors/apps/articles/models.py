@@ -4,6 +4,8 @@ from django.contrib.postgres.fields import ArrayField
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from notifications.signals import notify
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_text
 
 
 from authors.apps.authentication.models import User
@@ -130,12 +132,14 @@ def send_notifications_to_all_users(sender,
     if instance and created:
         receivers = list(User.objects.all())
         link = f'https://ah-leagueoflegends-staging.herokuapp.com/api/articles/{instance.slug}'
+        subscription = f'https://ah-leagueoflegends-staging.herokuapp.com/api/users/subscription/'
         SendEmail(
             template="create_article.html",
             context={
                 "article": instance,
                 "author": instance.author,
-                "url_link": link
+                "url_link": link,
+                "subscription": subscription
             },
             subject=" has published a new article",
             e_to=[u.email for u in receivers],
@@ -155,17 +159,24 @@ def send_notifications_to_all_users_on_comments(sender,
     """
 
     if instance and created:
+        # import pdb; pdb.set_trace()
         receivers = list(User.objects.all())
         print(receivers)
         author = User.objects.get(email=instance.author)
         if author:
             # article = Article.objects.get(author=author, id=instance.id)
-            # link = f'https://ah-leagueoflegends-staging.herokuapp.com/api/articles/{article.slug}/comments/{instance.id}'
+            comment = Comment.objects.get(id=instance.id)
+            link = f'https://ah-leagueoflegends-staging.herokuapp.com/api/articles/{comment.article.slug}/comments/{instance.id}'
+            uuid = urlsafe_base64_encode(force_bytes(author.id)
+                                         ).decode("utf-8")
+            subscription = f'http://127.0.0.1:8000/api/users/subscription/{uuid}'
             SendEmail(
                 template="comment_notification.html",
                 context={
-                    "article": instance,
-                    # "url_link": link
+                    "article": instance.article,
+                    "comment": instance,
+                    "url_link": link,
+                    "subscription": subscription
                 },
                 subject=" has published a new article",
                 e_to=[u.email for u in receivers],
