@@ -14,17 +14,61 @@ class NotificationTestCase(BaseTest):
             "body": "I do believe"
         }
     }
-    def get_user2_token(self):
+    user1 = {
+            "user": {
+                "email": "jake@jakerr.jake",
+                "username": "Eddy",
+                "password": "J!ake123456"
+            }
+        }
+    user2 = {
+        "user": {
+            "email": "jason@gmail.jake",
+            "username": "jason",
+            "password": "J!ake123456"
+        }
+    }
+    user3 = {
+        "user": {
+            "email": "mercy@gmail.com",
+            "username": "mercy",
+            "password": "J!ake123456"
+        }
+    }
+    user4 = {
+        "user": {
+            "email": "Loice@gmail.com",
+            "username": "loice",
+            "password": "J!ake123456"
+        }
+    }
+
+    def get_user1_token(self):
         '''
         returns token to be used in tests
         '''
         response = self.client.post(
             self.SIGN_UP_URL,
-            self.user_cred1,
+            self.user1,
             format='json')
         response = self.client.post(
             reverse('authentication:user_login'),
-            self.user_cred1,
+            self.user1,
+            format='json')
+        token = response.data['token']
+        return token
+
+    def get_user2_token(self):
+        '''
+        Returns token for 3rd user to be used in tests
+        '''
+        response = self.client.post(
+            self.SIGN_UP_URL,
+            self.user2,
+            format='json')
+        response = self.client.post(
+            reverse('authentication:user_login'),
+            self.user2,
             format='json')
         token = response.data['token']
         return token
@@ -35,11 +79,11 @@ class NotificationTestCase(BaseTest):
         '''
         response = self.client.post(
             self.SIGN_UP_URL,
-            self.user_cred2,
+            self.user3,
             format='json')
         response = self.client.post(
             reverse('authentication:user_login'),
-            self.user_cred2,
+            self.user3,
             format='json')
         token = response.data['token']
         return token
@@ -50,11 +94,11 @@ class NotificationTestCase(BaseTest):
         '''
         response = self.client.post(
             self.SIGN_UP_URL,
-            self.user_cred3,
+            self.user4,
             format='json')
         response = self.client.post(
             reverse('authentication:user_login'),
-            self.user_cred3,
+            self.user4,
             format='json')
         token = response.data['token']
         return token
@@ -70,7 +114,7 @@ class NotificationTestCase(BaseTest):
                 "body": "It really is"
             }
         }
-        token = self.get_user2_token()
+        token = self.get_user1_token()
         return self.client.post(
             '/api/articles',
             article,
@@ -84,36 +128,70 @@ class NotificationTestCase(BaseTest):
         '''
         Test that a notification is sent to users after an articel is created
         '''
-        signup = self.register_user()
-        login = self.login_user()
-        token = login.data.get('token')
+        user1_token = self.get_user1_token()
+        user2_token = self.get_user2_token()
+        res = self.client.put(
+            '/api/profiles/Eddy/follow',
+            HTTP_AUTHORIZATION='Bearer ' + user2_token,
+        )
+        resp = self.client.get(
+            '/api/Eddy/followers',
+            HTTP_AUTHORIZATION='Bearer ' + user1_token,
+
+            format='json'
+        )
         self.create_article()
         response = self.client.get(
             '/api/notifications',
-            HTTP_AUTHORIZATION='Bearer ' + token,
+            HTTP_AUTHORIZATION='Bearer ' + user2_token,
         )
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         self.assertEquals(len(response.data), 1)
+
+    def test_notification_not_sent_to_non_followers(self):
+        '''
+        test notifications for article creation should only be sent to followers
+        '''
+        user1_token = self.get_user1_token()
+        user2_token = self.get_user2_token()
+        user3_token = self.get_user3_token()
+        res = self.client.put(
+            '/api/profiles/Eddy/follow',
+            HTTP_AUTHORIZATION='Bearer ' + user2_token,
+        )
+        resp = self.client.get(
+            '/api/Eddy/followers',
+            HTTP_AUTHORIZATION='Bearer ' + user1_token,
+
+            format='json'
+        )
+        self.create_article()
+        response = self.client.get(
+            '/api/notifications',
+            HTTP_AUTHORIZATION='Bearer ' + user3_token,
+        )
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(len(response.data), 0)
+
 
     def test_notification_sent_after_comment(self):
         '''
         Test notitification sent after article is favorited
         '''
-        signup = self.register_user()
-        login = self.login_user()
-        token = login.data.get('token')
+        user_1 = self.get_user1_token()
         user_2 = self.get_user2_token()
+        user_3 = self.get_user3_token()
         article = self.create_article()
         slug = article.data.get("slug")
         self.client.post(
-            'api/articles/'+slug+'/favorites/',
-            HTTP_AUTHORIZATION='Bearer ' + token,
+            '/api/articles/'+slug+'/favorite',
+            HTTP_AUTHORIZATION='Bearer ' + user_2,
             format='json'
         )
-        response = self.client.post(
+        res = self.client.post(
             '/api/articles/'+slug+'/comments',
             self.comment,
-            HTTP_AUTHORIZATION='Bearer ' + token,
+            HTTP_AUTHORIZATION='Bearer ' + user_3,
 
             format='json'
         )
@@ -125,36 +203,31 @@ class NotificationTestCase(BaseTest):
         self.assertEquals(len(response.data), 1)
 
     def test_notification_sent_only_to_users_who_faved_the_article(self):
-        signup = self.register_user()
-        login = self.login_user()
+        user_1 = self.get_user1_token()
+        user_2 = self.get_user2_token()
+        user_3 = self.get_user3_token()
+        user_4 = self.get_user4_token()
         article = self.create_article()
         slug = article.data.get("slug")
-        token1 = login.data.get('token')
-        token2 = self.get_user2_token()
-        token3 = self.get_user3_token()
-        token4 = self.get_user4_token()
         self.client.post(
-            'api/articles/'+slug+'/favorites/',
-            HTTP_AUTHORIZATION='Bearer ' + token1,
+            '/api/articles/'+slug+'/favorite',
+            HTTP_AUTHORIZATION='Bearer ' + user_2,
             format='json'
         )
-        self.client.post(
+        res = self.client.post(
             '/api/articles/'+slug+'/comments',
             self.comment,
-            HTTP_AUTHORIZATION='Bearer ' + token2,
+            HTTP_AUTHORIZATION='Bearer ' + user_3,
 
             format='json'
         )
-        response1 = self.client.get(
+        response = self.client.get(
             '/api/notifications',
-            HTTP_AUTHORIZATION='Bearer ' + token3,
+            HTTP_AUTHORIZATION='Bearer ' + user_4,
         )
-        response2 = self.client.get(
-            '/api/notifications',
-            HTTP_AUTHORIZATION='Bearer ' + token1,
-        )
-        self.assertEquals(len(response1.data), 0)
-        self.assertEquals(len(response2.data), 1)
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(len(response.data), 0)
+
 
         
 
