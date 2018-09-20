@@ -74,7 +74,8 @@ class ArticleSerializer(serializers.ModelSerializer):
 
         article = Article.objects.create(**validated_data)
 
-        notify.send(author, recipient=recipients, verb="created a new article", action_object=article)
+        notify.send(author, recipient=recipients,
+                    verb="created a new article", action_object=article)
         return article
 
     def get_created_at(self, instance):
@@ -160,13 +161,15 @@ class CommentSerializer(serializers.ModelSerializer):
         slug = self.context.get('slug')
         author = self.context.get('author', None)
         article = Article.objects.get(slug=slug)
-        comment = Comment.objects.create(article=article, author=author, **validated_data)
+        comment = Comment.objects.create(article=article,
+                                         author=author, **validated_data)
         recipients = []
         for profile in Profile.objects.all():
             if profile.has_favorited(article):
                 user = User.objects.get(pk=profile.id)
                 recipients.append(user)
-        notify.send(author, recipient=recipients, verb="commented on", action_object=article)
+        notify.send(author, recipient=recipients, 
+                    verb="commented on", action_object=article)
         return comment
 
 
