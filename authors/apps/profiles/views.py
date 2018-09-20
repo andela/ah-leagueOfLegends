@@ -25,8 +25,8 @@ class ProfileRetrieveAPIView(RetrieveAPIView):
         except Profile.DoesNotExist:
             raise ProfileDoesNotExist
 
-        serializer = self.serializer_class(profile, 
-                           context={'request': request} )
+        serializer = self.serializer_class(profile,
+                                           context={'request': request})
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -42,11 +42,12 @@ class ProfileList(ListAPIView):
         serializer_context = {'request': request}
         page = self.paginate_queryset(self.queryset)
         serializer = self.serializer_class(
-           page,
-           context=serializer_context,
-           many=True
+            page,
+            context=serializer_context,
+            many=True
         )
         return self.get_paginated_response(serializer.data)
+
 
 class ProfileFollowAPIView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -73,6 +74,7 @@ class ProfileFollowAPIView(APIView):
         })
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 class FollowersAPIView(APIView):
     permission_classes = (IsAuthenticated,)
     renderer_classes = (ProfileJSONRenderer,)
@@ -84,13 +86,12 @@ class FollowersAPIView(APIView):
             profile = Profile.objects.get(user__username=username)
         except Profile.DoesNotExist:
             raise ProfileDoesNotExist
-    
+
         followers = user.get_followers(profile)
         serializer = self.serializer_class(followers,
-                                    many=True,context={'request': request})
-        return Response({"followers":serializer.data},
-                                    status=status.HTTP_200_OK, )
-     
+                                           many=True, context={'request': request})
+        return Response({"followers": serializer.data},
+                        status=status.HTTP_200_OK, )
 
 
 class FollowingAPIView(APIView):
@@ -104,9 +105,9 @@ class FollowingAPIView(APIView):
             profile = Profile.objects.get(user__username=username)
         except Profile.DoesNotExist:
             raise ProfileDoesNotExist
-    
+
         following = user.get_following(profile)
-        serializer = self.serializer_class(following,many=True,
-                                        context={'request': request})
-        return Response({"followers":serializer.data},
-                                    status=status.HTTP_200_OK, )
+        serializer = self.serializer_class(following, many=True,
+                                           context={'request': request})
+        return Response({"followers": serializer.data},
+                        status=status.HTTP_200_OK, )
