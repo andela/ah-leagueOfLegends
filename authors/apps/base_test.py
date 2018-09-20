@@ -96,6 +96,18 @@ class BaseTest(APITestCase):
             self.user_cred,
             format='json'
         )
+    def register_user_1(self):
+        return self.client.post(
+            self.SIGN_UP_URL,
+            self.user_cred1,
+            format='json'
+        )
+    def register_user_2(self):
+        return self.client.post(
+            self.SIGN_UP_URL,
+            self.user_cred2,
+            format='json'
+        )
 
     def get_profile(self, username):
         return self.client.get(
@@ -106,5 +118,18 @@ class BaseTest(APITestCase):
         return self.client.post(
             self.LOG_IN_URL,
             self.user_cred,
+            format='json'
+        )
+    def login_user_1(self):
+        return self.client.post(
+            self.LOG_IN_URL,
+            self.user_cred1,
+            format='json'
+        )
+    
+    def login_user_2(self):
+        return self.client.post(
+            self.LOG_IN_URL,
+            self.user_cred2,
             format='json'
         )
