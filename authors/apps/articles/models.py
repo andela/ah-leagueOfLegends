@@ -1,3 +1,4 @@
+import os
 from django.db import models
 from django.utils.text import slugify
 from django.contrib.postgres.fields import ArrayField
@@ -5,8 +6,12 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from notifications.signals import notify
 
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_text
+
 
 from authors.apps.authentication.models import User
+from authors.apps.profiles.models import Profile
 from authors.apps.core.email_with_celery import SendEmail
 
 
@@ -124,3 +129,72 @@ class Report(TimestampedModel):
 
     def __str__(self):
         return self.body
+@receiver(post_save, sender=Article)
+def send_notifications_to_all_users(sender,
+                                    instance,
+                                    created, *args, **kwargs):
+    """Create a Signal that sends email to all users that follow the author.
+
+    Arguments:
+        sender {[type]} -- [Instance of ]
+        created {[type]} -- [If the article is posted.]
+    """
+
+    if instance and created:
+        # receivers = list(User.objects.all())
+        users_following = instance.author.profile.get_followers(
+                                                    instance.author.profile)
+        users_follow = [u.user for u in users_following]
+        link = f'{os.getenv("HEROKU_BACKEND_URL")}/api/articles/{instance.slug}'
+        users_foll = [u.user.id for u in users_following]
+        if users_foll:
+            uuid = urlsafe_base64_encode(force_bytes(users_foll[0])
+                                         ).decode("utf-8")
+            subscription = f'{os.getenv("HEROKU_BACKEND_URL")}/api/users/subscription/{uuid}/'
+            SendEmail(
+                template="create_article.html",
+                context={
+                    "article": instance,
+                    "author": instance.author,
+                    "url_link": link,
+                    "subscription": subscription
+                },
+                subject="New Article",
+                e_to=[u.email for u in users_follow],
+            ).send()
+
+
+@receiver(post_save, sender=Comment)
+def send_notifications_to_all_users_on_comments(sender,
+                                                instance,
+                                                created,
+                                                *args, **kwargs):
+    """Create a Signal that sends email to all users that follow the author.
+
+    Arguments:
+        sender {[type]} -- [Instance of ]
+        created {[type]} -- [If the article is posted.]
+    """
+
+    if instance and created:
+        user_following = Profile.objects.all()
+        user_follow = [u.user for u in user_following if u.has_favorited(instance.article) and u.user.subscribed]
+        chek = [u.user for u in user_following if u.user.subscribed]
+        author = User.objects.get(email=instance.author)
+        if author:
+            comment = Comment.objects.get(id=instance.id)
+            link = f'{os.getenv("HEROKU_BACKEND_URL")}/api/articles/{comment.article.slug}/comments/{instance.id}'
+            uuid = urlsafe_base64_encode(force_bytes(author.id)
+                                         ).decode("utf-8")
+            subscription = f'{os.getenv("HEROKU_BACKEND_URL")}/api/users/subscription/{uuid}/'
+            SendEmail(
+                template="comment_notification.html",
+                context={
+                    "article": instance.article,
+                    "comment": instance,
+                    "url_link": link,
+                    "subscription": subscription
+                },
+                subject=" New Comment.",
+                e_to=[u.email for u in user_follow],
+            ).send()

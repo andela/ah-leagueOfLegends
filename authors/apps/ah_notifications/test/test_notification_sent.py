@@ -60,7 +60,7 @@ class NotificationTestCase(BaseTest):
 
     def get_user2_token(self):
         '''
-        Returns token for 3rd user to be used in tests
+        Returns token for 2nd user to be used in tests
         '''
         response = self.client.post(
             self.SIGN_UP_URL,
@@ -90,7 +90,7 @@ class NotificationTestCase(BaseTest):
 
     def get_user4_token(self):
         '''
-        Returns token for 3rd user to be used in tests
+        Returns token for 4th user to be used in tests
         '''
         response = self.client.post(
             self.SIGN_UP_URL,
@@ -203,6 +203,9 @@ class NotificationTestCase(BaseTest):
         self.assertEquals(len(response.data), 1)
 
     def test_notification_sent_only_to_users_who_faved_the_article(self):
+        '''
+        notifications should only be sent to users who favorited the article
+        '''
         user_1 = self.get_user1_token()
         user_2 = self.get_user2_token()
         user_3 = self.get_user3_token()
