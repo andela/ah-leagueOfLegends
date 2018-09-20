@@ -135,21 +135,24 @@ def send_notifications_to_all_users(sender,
         # receivers = list(User.objects.all())
         users_following = instance.author.profile.get_followers(
                                                     instance.author.profile)
-        link = f'{os.getenv("HEROKU_BACKEND_URL")}\
-        /api/articles/{instance.slug}'
-        subscription = f'{os.getenv("HEROKU_BACKEND_URL")}\
-        /api/users/subscription/'
-        SendEmail(
-            template="create_article.html",
-            context={
-                "article": instance,
-                "author": instance.author,
-                "url_link": link,
-                "subscription": subscription
-            },
-            subject=" has published a new article",
-            e_to=[u.email for u in users_following],
-        ).send()
+        users_follow = [u.user for u in users_following]
+        link = f'{os.getenv("HEROKU_BACKEND_URL")}/api/articles/{instance.slug}'
+        users_foll = [u.user.id for u in users_following]
+        if users_foll:
+            uuid = urlsafe_base64_encode(force_bytes(users_foll[0])
+                                         ).decode("utf-8")
+            subscription = f'{os.getenv("HEROKU_BACKEND_URL")}/api/users/subscription/{uuid}/'
+            SendEmail(
+                template="create_article.html",
+                context={
+                    "article": instance,
+                    "author": instance.author,
+                    "url_link": link,
+                    "subscription": subscription
+                },
+                subject=" has published a new article",
+                e_to=[u.email for u in users_follow],
+            ).send()
 
 
 @receiver(post_save, sender=Comment)
@@ -168,14 +171,14 @@ def send_notifications_to_all_users_on_comments(sender,
         # receivers = list(User.objects.all())
         users_following = instance.author.profile.get_followers(
                                                     instance.author.profile)
+        users_follow = [u.user for u in users_following]
         author = User.objects.get(email=instance.author)
         if author:
             comment = Comment.objects.get(id=instance.id)
-            link = f'{os.getenv("HEROKU_BACKEND_URL")}\
-            /api/articles/{comment.article.slug}/comments/{instance.id}'
+            link = f'{os.getenv("HEROKU_BACKEND_URL")}/api/articles/{comment.article.slug}/comments/{instance.id}'
             uuid = urlsafe_base64_encode(force_bytes(author.id)
                                          ).decode("utf-8")
-            subscription = f'{os.getenv("HEROKU_BACKEND_URL")}/{uuid}'
+            subscription = f'{os.getenv("HEROKU_BACKEND_URL")}/api/users/subscription/{uuid}/'
             SendEmail(
                 template="comment_notification.html",
                 context={
@@ -185,5 +188,5 @@ def send_notifications_to_all_users_on_comments(sender,
                     "subscription": subscription
                 },
                 subject=" has published a new article",
-                e_to=[u.email for u in users_following],
+                e_to=[u.email for u in users_follow],
             ).send()
