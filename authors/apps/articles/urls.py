@@ -24,7 +24,8 @@ urlpatterns = [
     url(r'^articles/(?P<article_slug>[-\w]+)/favorite/?$',
         ArticlesFavoriteAPIView.as_view()),
 
-    path('articles/<slug>/comments', CommentsListCreateAPIView.as_view()),
+    path('articles/<slug>/comments', CommentsListCreateAPIView.as_view(),
+         name='comment_article'),
     path('articles/<slug>/comments/<pk>', CommentRetrieveUpdateDestroy.as_view()),
     path('articles/<slug>/comments/<pk>/like', LikeComment.as_view()),
     path('articles/<slug>/comments/<pk>/dislike', DislikeComment.as_view()),

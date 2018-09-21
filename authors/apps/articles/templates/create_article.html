@@ -1,0 +1,8 @@
+{% autoescape off %}
+Hello. {{ author}} has published a new Article. 
+<h4>Title:  {{article}}</h4>
+Click on the link to check it out. </br>
+<a href= {{ url_link }} >View Article</a>. </br>
+You are viewing this because you are following the Author. </br>
+Click <a href= {{ subscription }} >Here</a> </br> to unsubscribe.
+{% endautoescape %}

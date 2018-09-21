@@ -1,0 +1,8 @@
+{% autoescape off %}
+Hello. A new comment has been made on the article you favorited.
+<h4>Title: {{ article }}.</h4> </br>
+Comment:<i>{{ comment }}.</i> </br>
+<a href= {{ url_link }} >View the comment</a> </br>
+You are viewing this because you followed this article. <br>
+Click <a href= {{ subscription }} >Here</a>  to unsubscribe.
+{% endautoescape %}

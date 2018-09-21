@@ -16,6 +16,7 @@ Including another URLconf
 
 from django.urls import path, include
 from django.contrib import admin
+import notifications.urls
 
 # from mysite.core import views as core_views
 
@@ -25,5 +26,7 @@ urlpatterns = [
     path('api/', include('authors.apps.articles.urls')),
     path('api/profiles/', include('authors.apps.profiles.urls')),
     path('oauth/', include('social_django.urls')),
+    path('inbox/notifications/', include(notifications.urls)),
+    path('api/', include('authors.apps.ah_notifications.urls')),
 
 ]

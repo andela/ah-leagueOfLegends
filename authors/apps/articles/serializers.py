@@ -1,6 +1,12 @@
 from rest_framework import serializers
+
+from django.db.models.signals import post_save
+from notifications.signals import notify
+
 from authors.apps.authentication.serializers import UserSerializer
 from authors.apps.profiles.serializers import ProfileSerializer
+from authors.apps.authentication.models import User
+from authors.apps.profiles.models import Profile
 
 from .models import Article, Comment, ArticleRatings, Report
 from django.db.models import Avg, Count
@@ -60,9 +66,16 @@ class ArticleSerializer(serializers.ModelSerializer):
         ''' Method creates an article based on validated data'''
 
         author = self.context.get('author', None)
+        user = author.profile
+        followers = user.get_followers(user)
+        recipients = []
+        for follower in followers:
+            recipients.append(follower.user)
 
         article = Article.objects.create(**validated_data)
 
+        notify.send(author, recipient=recipients,
+                    verb="created a new article", action_object=article)
         return article
 
     def get_created_at(self, instance):
@@ -142,10 +155,18 @@ class CommentSerializer(serializers.ModelSerializer):
         )
 
     def create(self, validated_data):
+        '''
+        create a new comment instance
+        '''
         slug = self.context.get('slug')
         author = self.context.get('author', None)
         article = Article.objects.get(slug=slug)
-        comment = Comment.objects.create(article=article, author=author, **validated_data)
+        comment = Comment.objects.create(article=article,
+                                         author=author, **validated_data)
+        recipients = [User.objects.get(pk=profile.id) for profile in \
+                    Profile.objects.all() if profile.has_favorited(article) ]
+        notify.send(author, recipient=recipients, 
+                    verb="commented on", action_object=article)
         return comment
 
 
