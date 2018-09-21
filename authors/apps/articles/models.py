@@ -129,6 +129,7 @@ class Report(TimestampedModel):
 
     def __str__(self):
         return self.body
+
 @receiver(post_save, sender=Article)
 def send_notifications_to_all_users(sender,
                                     instance,
@@ -141,7 +142,6 @@ def send_notifications_to_all_users(sender,
     """
 
     if instance and created:
-        # receivers = list(User.objects.all())
         users_following = instance.author.profile.get_followers(
                                                     instance.author.profile)
         users_follow = [u.user for u in users_following]
