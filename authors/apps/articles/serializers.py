@@ -8,7 +8,7 @@ from authors.apps.profiles.serializers import ProfileSerializer
 from authors.apps.authentication.models import User
 from authors.apps.profiles.models import Profile
 
-from .models import Article, Comment, ArticleRatings, Report
+from .models import Article, Comment, ArticleRating, Report
 from django.db.models import Avg, Count
 
 
@@ -112,7 +112,7 @@ class ArticleSerializer(serializers.ModelSerializer):
         return request.user.profile.has_favorited(instance)
 
     def average_count(self, object):
-        average = ArticleRatings.objects.filter(
+        average = ArticleRating.objects.filter(
             article=object).aggregate(Avg('rating')).get('rating__avg', 0)
         return average
 
@@ -170,16 +170,18 @@ class CommentSerializer(serializers.ModelSerializer):
         return comment
 
 
-class RatingSerializer(serializers.Serializer):
+class RatingSerializer(serializers.ModelSerializer):
     """
-    zserializer for rating
+    serializer for rating
     """
 
     rating = serializers.IntegerField(required=True)
+    note = serializers.CharField(required=False)
+    rater = serializers.ReadOnlyField(source='author.username')
 
     class Meta:
-        model = Article
-        fields = ['rating']
+        model = ArticleRating
+        fields = ['rating', 'rater', 'note']
 
     def validate(self, data):
         # Validates rating data
@@ -199,6 +201,7 @@ class RatingSerializer(serializers.Serializer):
             )
 
         return {"rating": rate}
+
 class ReportSerializer(serializers.ModelSerializer):
     """mediates between the reporting an article model and python primitives"""
     author = UserSerializer(read_only=True)
