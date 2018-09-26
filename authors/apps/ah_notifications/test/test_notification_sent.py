@@ -148,6 +148,28 @@ class NotificationTestCase(BaseTest):
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         self.assertEquals(len(response.data), 1)
 
+    def test_get_single_notification(self):
+        user1_token = self.get_user1_token()
+        user2_token = self.get_user2_token()
+        res = self.client.put(
+            '/api/profiles/Eddy/follow',
+            HTTP_AUTHORIZATION='Bearer ' + user2_token,
+        )
+        resp = self.client.get(
+            '/api/Eddy/followers',
+            HTTP_AUTHORIZATION='Bearer ' + user1_token,
+
+            format='json'
+        )
+        self.create_article()
+        response = self.client.get(
+            '/api/notifications/1',
+            HTTP_AUTHORIZATION='Bearer ' + user2_token,
+        )
+
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        
+
     def test_notification_not_sent_to_non_followers(self):
         '''
         test notifications for article creation should only be sent to followers
@@ -231,7 +253,89 @@ class NotificationTestCase(BaseTest):
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         self.assertEquals(len(response.data), 0)
 
+    def test_notification_not_sent_to_unsubscribed_users(self):
+        '''
+        notifications should only be sent to subscribed users
+        '''
+        user_1 = self.get_user1_token()
+        user_2 = self.get_user2_token()
+        user_3 = self.get_user3_token()
+        article = self.create_article()
+        slug = article.data.get("slug")
+        self.client.post(
+            '/api/articles/'+slug+'/favorite',
+            HTTP_AUTHORIZATION='Bearer ' + user_2,
+            format='json'
+        )
+        self.client.put(
+            '/api/notifications/unsubscribe',
+            HTTP_AUTHORIZATION='Bearer ' + user_2,
+            format='json'
+        )
+        res = self.client.post(
+            '/api/articles/'+slug+'/comments',
+            self.comment,
+            HTTP_AUTHORIZATION='Bearer ' + user_3,
 
-        
+            format='json'
+        )
+        response = self.client.get(
+            '/api/notifications',
+            HTTP_AUTHORIZATION='Bearer ' + user_2,
+        )
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(len(response.data), 0)
+
+
+    def test_user_can_subscribe_and_unsubscribe(self):
+        '''
+        users should be able to subscribe and unsubscribe to notifications
+        '''
+        user_1 = self.get_user1_token()
+        user_2 = self.get_user2_token()
+        user_3 = self.get_user3_token()
+        article = self.create_article()
+        slug = article.data.get("slug")
+        self.client.post(
+            '/api/articles/'+slug+'/favorite',
+            HTTP_AUTHORIZATION='Bearer ' + user_2,
+            format='json'
+        )
+        self.client.put(
+            '/api/notifications/unsubscribe',
+            HTTP_AUTHORIZATION='Bearer ' + user_2,
+            format='json'
+        )
+        res = self.client.post(
+            '/api/articles/'+slug+'/comments',
+            self.comment,
+            HTTP_AUTHORIZATION='Bearer ' + user_3,
+
+            format='json'
+        )
+        response = self.client.get(
+            '/api/notifications',
+            HTTP_AUTHORIZATION='Bearer ' + user_2,
+        )
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(len(response.data), 0)
+        self.client.put(
+            '/api/notifications/subscribe',
+            HTTP_AUTHORIZATION='Bearer ' + user_2,
+            format='json'
+        )
+        res = self.client.post(
+            '/api/articles/'+slug+'/comments',
+            self.comment,
+            HTTP_AUTHORIZATION='Bearer ' + user_3,
+
+            format='json'
+        )
+        response = self.client.get(
+            '/api/notifications',
+            HTTP_AUTHORIZATION='Bearer ' + user_2,
+        )
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(len(response.data), 1)
 
         
