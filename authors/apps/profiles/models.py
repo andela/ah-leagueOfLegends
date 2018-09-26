@@ -23,6 +23,8 @@ class Profile(TimestampedModel):
                                        related_name='favorited_by'
                                        )
 
+    get_notifications = models.BooleanField(default=True)
+
     def __str__(self):
         return self.user.username
 
