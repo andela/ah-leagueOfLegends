@@ -551,6 +551,7 @@ class RateArticlesAPIView(APIView):
         # SELECT count(ID) FROM RATINGS WHERE ARTICLE = article and Rater = user
         user = request.user
         try:
+            # Get a user rating if there is previous record
             currentRating = ArticleRating.objects.get(rater=user, article=article);
         except:
             currentRating = None
@@ -562,6 +563,7 @@ class RateArticlesAPIView(APIView):
             article_rating.save()
         ## update the rating
         else:
+            #Upadte previous rating with current rating 
             currentRating.rating=rating
             currentRating.save()
       
