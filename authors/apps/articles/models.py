@@ -148,7 +148,7 @@ def send_notifications_to_all_users(sender,
     if instance and created:
         users_following = instance.author.profile.get_followers(
                                                     instance.author.profile)
-        users_follow = [u.user for u in users_following]
+        users_follow = [u.user for u in users_following if u.get_notifications]
         link = f'{os.getenv("HEROKU_BACKEND_URL")}/api/articles/{instance.slug}'
         users_foll = [u.user.id for u in users_following]
         if users_foll:
@@ -182,8 +182,8 @@ def send_notifications_to_all_users_on_comments(sender,
 
     if instance and created:
         user_following = Profile.objects.all()
-        user_follow = [u.user for u in user_following if u.has_favorited(instance.article) and u.user.subscribed]
-        chek = [u.user for u in user_following if u.user.subscribed]
+        user_follow = [u.user for u in user_following if \
+                  u.has_favorited(instance.article) and u.get_notifications]
         author = User.objects.get(email=instance.author)
         if author:
             comment = Comment.objects.get(id=instance.id)

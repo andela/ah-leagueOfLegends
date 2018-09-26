@@ -68,9 +68,8 @@ class ArticleSerializer(serializers.ModelSerializer):
         author = self.context.get('author', None)
         user = author.profile
         followers = user.get_followers(user)
-        recipients = []
-        for follower in followers:
-            recipients.append(follower.user)
+        recipients = [follower.user for follower in followers if \
+                follower.get_notifications]
 
         article = Article.objects.create(**validated_data)
 
@@ -164,7 +163,9 @@ class CommentSerializer(serializers.ModelSerializer):
         comment = Comment.objects.create(article=article,
                                          author=author, **validated_data)
         recipients = [User.objects.get(pk=profile.id) for profile in \
-                    Profile.objects.all() if profile.has_favorited(article) ]
+                    Profile.objects.all() if (profile.has_favorited(article) \
+                    and profile.get_notifications) ]
+
         notify.send(author, recipient=recipients, 
                     verb="commented on", action_object=article)
         return comment
