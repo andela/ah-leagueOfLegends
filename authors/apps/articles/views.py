@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.db.models import Avg, Count
 
-from .models import Article, ArticleRatings
+from .models import Article, ArticleRating
 from .renderers import ArticleJSONRenderer, RatingJSONRenderer
 from .serializers import ArticleSerializer, RatingSerializer
 from rest_framework.pagination import LimitOffsetPagination
@@ -21,7 +21,7 @@ from django.views.generic import ListView
 import django_filters
 from django_filters import rest_framework as filters
 from django.contrib.postgres.fields import ArrayField
-from .models import Article, Comment, Report
+from .models import Article, Comment, Report, ArticleRating
 from .renderers import ArticleJSONRenderer, CommentJSONRenderer, ReportJSONRenderer
 from .serializers import ArticleSerializer, CommentSerializer, ReportSerializer
 
@@ -514,58 +514,58 @@ class RateArticlesAPIView(APIView):
         """
         Method that posts users article ratings
         """
-        rating = request.data.get("rate", {})
+        ratingData = request.data.get("rate", {})
 
-        rating_1 = rating.get('rating', None)
-
-        if not isinstance(rating_1, int):
+        rating = ratingData.get('rating', None)
+        note = ratingData.get('note', None)
+      
+        if not isinstance(rating, int):
             return Response(
                 {'message': 'Rating should be an integer'},
                 status=status.HTTP_401_UNAUTHORIZED)
-        if rating_1 < 1 or rating_1 > 5:
+        if rating <1 or rating > 5:
             return Response(
                 {'error': 'Rating should be between 1 and 5'},
                 status=status.HTTP_401_UNAUTHORIZED)
-
-        serializer = self.serializer_class(data=rating)
-        serializer.is_valid(raise_exception=True)
-        rating = serializer.data.get('rating')
+        # Try to get an article using slug, raise an exception if not found
         try:
             article = Article.objects.get(slug=slug)
         except Article.DoesNotExist:
             raise NotFound("An article with this slug does not exist")
-
-        current_ratings = ArticleRatings.objects.filter(rater=request.user,
-                                                        article=article).first()
-        article_rating = Article.objects.filter(slug=slug).first()
-
-        if request.user == article.author:
+        # User should not rate own article, raise unauthorised status
+        if request.user ==  article.author:
             return Response(
                 {'message': 'You cannot rate your article'},
 
                 status=status.HTTP_401_UNAUTHORIZED)
         # No previous ratings, so just take the rating and save to the db
         # after aggregating
-
         # Check the existing number or rating
         # SELECT count(ID) FROM RATINGS WHERE ARTICLE = article and Rater = user
         user = request.user
-        count = ArticleRatings.objects.filter(
-            rater=user, article=article).count()
-        # User has already rated the article
-        if count >= 1:
-            return Response(
-                {"Error": "You can only rate an article once."},
-                status=status.HTTP_401_UNAUTHORIZED)
+        try:
+            # Get a user rating if there is previous record
+            currentRating = ArticleRating.objects.get(rater=user, article=article);
+        except:
+            currentRating = None
 
-        article_rating = ArticleRatings(article=article,
-                                        rating=rating_1, rater=user)
-        article_rating.save()
+         # Save the rating
+        if currentRating is None:
+            article_rating = ArticleRating(article=article,
+            rating=rating, rater=user, note=note)
+            article_rating.save()
+        ## update the rating
+        else:
+            #Upadte previous rating with current rating 
+            currentRating.rating=rating
+            currentRating.save()
+      
         # Get the ratings avarage
-        average = ArticleRatings.objects.filter(
+        average = ArticleRating.objects.filter(
             article=article).aggregate(Avg('rating')).get('rating__avg', 0)
         return Response(
-            {"average_rating": average}, status=status.HTTP_201_CREATED)
+            {"average_rating": average, "Note": note}, 
+            status=status.HTTP_201_CREATED)
 
 
 class BookmarkAPIView(UpdateAPIView):

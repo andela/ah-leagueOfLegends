@@ -107,7 +107,7 @@ class Comment(TimestampedModel):
 
     def __str__(self):
         return self.body
-class ArticleRatings(models.Model):
+class ArticleRating(models.Model):
     """
     Defines the ratings fields for a rater
     """
@@ -115,9 +115,13 @@ class ArticleRatings(models.Model):
         'authentication.User', on_delete=models.CASCADE, 
         related_name='articlesrating'
     )
+    note =models.TextField()
     article = models.ForeignKey(
         Article,  on_delete=models.CASCADE, related_name="articlerating")
     rating = models.IntegerField()
+ 
+    def __str__(self):
+        return self.note
 
 
 
