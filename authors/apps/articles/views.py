@@ -527,19 +527,12 @@ class RateArticlesAPIView(APIView):
             return Response(
                 {'error': 'Rating should be between 1 and 5'},
                 status=status.HTTP_401_UNAUTHORIZED)
-        
-        # serializer = self.serializer_class(data=rating)
-        # serializer.is_valid(raise_exception=True)
-        # rating = serializer.data.get('rating')
+        # Try to get an article using slug, raise an exception if not found
         try:
             article = Article.objects.get(slug=slug)
         except Article.DoesNotExist:
             raise NotFound("An article with this slug does not exist")
-
-        # current_ratings = ArticleRating.objects.filter(rater=request.user,
-        #                                  article=article).first()
-        # article_rating = Article.objects.filter(slug=slug).first()
-
+        # User should not rate own article, raise unauthorised status
         if request.user ==  article.author:
             return Response(
                 {'message': 'You cannot rate your article'},
