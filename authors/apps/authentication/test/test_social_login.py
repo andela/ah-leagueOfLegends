@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 from django.urls import reverse
 from rest_framework.test import APITestCase, APIClient
-
+import os
 
 
 class SocialAuthenticationTests(APITestCase):
@@ -17,9 +17,10 @@ class SocialAuthenticationTests(APITestCase):
         """
         Test signing up of new user
         """
-        access_token = "1039235309043675137-l3x3MgsuqaePx9qBikXPMKVr13lMgj"
-        access_token_secret = "UFlDOMdDhUnzNXkQW4NArKzvdJPmxPrDSyXJiQwoipZCl"
-        data = {"provider": "twitter", "access_token": access_token, "access_token_secret": access_token_secret}
+        access_token = os.getenv("test_twitter_access_token")
+        access_token_secret = os.getenv("test_twitter_access_token_secret")
+        data = {"provider": "twitter", "access_token": access_token,
+                "access_token_secret": access_token_secret}
         response = self.client.post(self.auth_url, data=data)
         self.assertEqual(response.status_code, 200)
 
@@ -31,7 +32,6 @@ class SocialAuthenticationTests(APITestCase):
         response = self.client.post(self.auth_url, data=data)
         self.assertEqual(response.status_code, 400)
 
-
     def test_missing_provider(self):
         """
         Test request without passing the provider
@@ -41,7 +41,6 @@ class SocialAuthenticationTests(APITestCase):
         response = self.client.post(self.auth_url, data=data)
         self.assertEqual(response.status_code, 400)
 
-
     def test_invalid_provider(self):
         """
         Test giving a non-existent provider
@@ -50,7 +49,6 @@ class SocialAuthenticationTests(APITestCase):
         data = {"access_token": access_token, "provider": "facebook-oauth23"}
         response = self.client.post(self.auth_url, data=data)
         self.assertEqual(response.status_code, 400)
-
 
     def test_invalid_token(self):
         """
