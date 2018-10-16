@@ -89,7 +89,7 @@ class ArticleViewSet(mixins.CreateModelMixin,
 
     def retrieve(self, request, slug):
 
-        ''' Method returns a single article 
+        ''' Method returns a single article
         Takes a slug as unique identifier, searches the db
         and returns an article with matching slug.
         Returns NotFound if an article does not exist '''
@@ -109,7 +109,7 @@ class ArticleViewSet(mixins.CreateModelMixin,
 
     def update(self, request, slug):
 
-        ''' Method updates partially a single article 
+        ''' Method updates partially a single article
         Takes a slug as unique identifier, searches the db
         and updates an article with matching slug.
         Returns NotFound if an article does not exist '''
@@ -145,7 +145,7 @@ class ArticleViewSet(mixins.CreateModelMixin,
 
     def destroy(self, request, slug):
 
-        ''' Method deletes a single article 
+        ''' Method deletes a single article
         Takes a slug as unique identifier, searches the db
         and deletes an article with matching slug.
         Returns NotFound if an article does not exist '''
@@ -268,7 +268,7 @@ class ArticleFilter(filters.FilterSet):
 
 
 class ArticleSearchList(generics.ListAPIView):
-    """ 
+    """
     Implements class to enable searching and filtering
     """
 
@@ -285,10 +285,10 @@ class ArticleSearchList(generics.ListAPIView):
 
 
 class ArticlesFavoriteAPIView(APIView):
-    """ 
-    This View allows users to Favorite and Unfavorite articles, an exception is 
+    """
+    This View allows users to Favorite and Unfavorite articles, an exception is
     thrown if the article doesn’t
-    exist. 
+    exist.
     """
     permission_classes = (IsAuthenticated,)
     renderer_classes = (ArticleJSONRenderer,)
@@ -518,7 +518,7 @@ class RateArticlesAPIView(APIView):
 
         rating = ratingData.get('rating', None)
         note = ratingData.get('note', None)
-      
+
         if not isinstance(rating, int):
             return Response(
                 {'message': 'Rating should be an integer'},
@@ -556,16 +556,51 @@ class RateArticlesAPIView(APIView):
             article_rating.save()
         ## update the rating
         else:
-            #Upadte previous rating with current rating 
+            #Upadte previous rating with current rating
             currentRating.rating=rating
             currentRating.save()
-      
+
         # Get the ratings avarage
         average = ArticleRating.objects.filter(
             article=article).aggregate(Avg('rating')).get('rating__avg', 0)
         return Response(
-            {"average_rating": average, "Note": note}, 
+            {"average_rating": average, "Note": note},
             status=status.HTTP_201_CREATED)
+
+                    # Get the ratings avarage
+        average = ArticleRating.objects.filter(
+            article=article).aggregate(Avg('rating')).get('rating__avg', 0)
+        return Response(
+            {"average_rating": average, "Note": note},
+            status=status.HTTP_201_CREATED)
+    # End pints returns an initial rating of the user if exists
+    def get(self, request, slug):
+        """
+        Method that posts users article ratings
+        """
+
+        # Try to get an article using slug, raise an exception if not found
+        try:
+            article = Article.objects.get(slug=slug)
+        except Article.DoesNotExist:
+            raise NotFound("An article with this slug does not exist")
+        # after aggregating
+        # Check the existing number or rating
+        # SELECT count(ID) FROM RATINGS WHERE ARTICLE = article and Rater = user
+        user = request.user
+        try:
+            # Get a user rating if there is previous record
+            currentRating = ArticleRating.objects.get(
+                rater=user, article=article)
+        except:
+            currentRating = None
+            return Response("You have not rated before")
+
+         # Return the rating
+        if currentRating:
+            return Response(
+                {"rating": currentRating.rating},
+                status=status.HTTP_200_OK)
 
 
 class BookmarkAPIView(UpdateAPIView):
