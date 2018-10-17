@@ -111,3 +111,46 @@ class FollowingAPIView(APIView):
                                            context={'request': request})
         return Response({"followers": serializer.data},
                         status=status.HTTP_200_OK, )
+
+class SubscribeNotificationAPIView(APIView):
+    '''
+    Toggle notification on and off
+    '''
+    permission_classes = (IsAuthenticated,)
+    renderer_classes = (ProfileJSONRenderer,)
+    serializer_class = ProfileSerializer
+
+    def put(self, request):
+        user = request.user.profile
+        if user.get_notifications:
+            return Response({"message":"You are already subscribed for notifications"},
+                        status=status.HTTP_200_OK, )
+        else:
+            user.get_notifications = True
+
+        user.save()
+
+        return Response({"message":"You have successfully subscribed for notifications"},
+                        status=status.HTTP_200_OK, )
+
+
+class UnsubscribeNotificationAPIView(APIView):
+    '''
+    Toggle notification on and off
+    '''
+    permission_classes = (IsAuthenticated,)
+    renderer_classes = (ProfileJSONRenderer,)
+    serializer_class = ProfileSerializer
+
+    def put(self, request):
+        user = request.user.profile
+        if not user.get_notifications:
+            return Response({"message": "You are already unsubscribed from notifications"},
+                        status=status.HTTP_200_OK, )
+        else:
+            user.get_notifications = False
+
+        user.save()
+
+        return Response({"message": "You have successfully unsubscribed from notifications"},
+                        status=status.HTTP_200_OK, )

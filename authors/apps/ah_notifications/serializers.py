@@ -20,4 +20,4 @@ class NotificationSerializer(serializers.ModelSerializer):
         Notification fields to be returned to users
         '''
         model = Notification
-        fields = ('actor','unread','verb',  'action_object', 'timesince')
+        fields = ('id', 'actor','unread','verb',  'action_object', 'timesince')
