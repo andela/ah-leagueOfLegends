@@ -13,7 +13,7 @@ from django.db.models import Avg, Count
 
 
 class ArticleSerializer(serializers.ModelSerializer):
-    author = serializers.ReadOnlyField(source='author.username')
+    author = UserSerializer(read_only=True)
     description = serializers.CharField(required=False)
     slug = serializers.SlugField(required=False)
     # SerializerMethodField - read-only field
