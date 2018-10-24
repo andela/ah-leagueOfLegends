@@ -175,8 +175,8 @@ class UserForgetPasswordView(APIView):
                 subject='Authors Haven Verification',
                 e_to=[serializer.data['email'], ],
                 e_from=settings.EMAIL_HOST_USER,).send()
-
-        return HttpResponse('Reset Link successfully sent to your Email')
+            return HttpResponse('Reset Link successfully sent to your Email')
+        return HttpResponse('Password reset failed.Check you email and try again')
 
 
 class ResetPasswordLinkView(APIView):
