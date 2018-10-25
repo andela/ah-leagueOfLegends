@@ -175,8 +175,10 @@ class UserForgetPasswordView(APIView):
                 subject='Authors Haven Verification',
                 e_to=[serializer.data['email'], ],
                 e_from=settings.EMAIL_HOST_USER,).send()
-            return HttpResponse('Reset Link successfully sent to your Email')
-        return HttpResponse('Password reset failed.Check you email and try again')
+            msg = f'Reset Link successfully sent to your Email'
+            return Response({'message': msg}, status=status.HTTP_200_OK)
+        msg = f'Password reset failed. Please check your email and try again'
+        return Response({'message': msg}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ResetPasswordLinkView(APIView):
@@ -193,6 +195,8 @@ class ResetPasswordLinkView(APIView):
             msg = f'Password Successfull Reset'
             return Response({'message': msg}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        
 class SocialAuth(CreateAPIView):
     """
     Allows for social signup and login using Google, Facebook and GitHub
