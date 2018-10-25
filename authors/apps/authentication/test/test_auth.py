@@ -74,3 +74,35 @@ class UserAuthenticationTestCase(BaseTest):
             format='json')
 
         self.assertEquals(status.HTTP_400_BAD_REQUEST, response.status_code)
+
+    def test_password_reset_with_no_email(self):
+        response = self.client.post(
+            self.RESET_PASS,
+            self.no_email,
+            format='json'
+        )
+        expected = {'message': "Password reset failed. Please check your email and try again"}
+        self.assertEquals(response.data, expected)
+        self.assertEquals(status.HTTP_400_BAD_REQUEST, response.status_code)
+
+    def test_password_reset_with_wrong_email(self):
+        response = self.client.post(
+            self.RESET_PASS,
+            self.wrong_email,
+            format='json'
+        )
+        expected = {'message': "Password reset failed. Please check your email and try again"}
+        self.assertEquals(response.data, expected)
+        self.assertEquals(status.HTTP_400_BAD_REQUEST, response.status_code)
+
+    def test_password_reset_with_correct_email(self):
+        response = self.register_user()
+        response = self.login_user()
+        response = self.client.post(
+            self.RESET_PASS,
+            self.correct_email,
+            format='json'
+        )
+        expected = {'message': "Reset Link successfully sent to your Email"}
+        self.assertEquals(response.data, expected)
+        self.assertEquals(status.HTTP_200_OK, response.status_code)

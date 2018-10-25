@@ -12,6 +12,7 @@ class BaseTest(APITestCase):
         self.SIGN_UP_URL = '/api/users/'
         self.PROFILE_URL = '/api/profiles/'
         self.LOG_IN_URL = '/api/users/login/'
+        self.RESET_PASS = '/api/users/forgot_password/'
 
         self.user_cred = {
             "user": {
@@ -19,6 +20,18 @@ class BaseTest(APITestCase):
                 "username": "jake",
                 "password": "J!ake123456"
             }
+        }
+
+        self.wrong_email = {
+            "email": "wrongemail.werong"
+        }
+
+        self.correct_email = {
+            "email": "jake@jake.jake",
+        }
+
+        self.no_email = {
+            "eml": "wrongemail.werong"
         }
 
         self.user_cred1 = {
