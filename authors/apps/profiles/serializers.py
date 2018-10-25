@@ -8,6 +8,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     date_joined = serializers.CharField(source='user.created_at')
     bio = serializers.CharField(allow_blank=True, required=False)
     image = serializers.URLField()
+    get_notifications = serializers.BooleanField()
     bookmarks = serializers.SlugRelatedField(
         many=True,
         read_only=True,
@@ -18,7 +19,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ('username', 'bio', 'image','date_joined','following','bookmarks',)
+        fields = ('username', 'bio', 'image','date_joined','following','bookmarks', 'get_notifications')
         read_only_fields = ('username',)
         
     def get_following(self, instance):
