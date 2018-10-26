@@ -142,6 +142,9 @@ class CommentSerializer(serializers.ModelSerializer):
     mediate between comment model and python primitives
     '''
     author = UserSerializer(read_only=True)
+    likes = serializers.SerializerMethodField(method_name='likes_count')
+    dislikes = serializers.SerializerMethodField(method_name='dislikes_count')
+
 
     class Meta:
         model = Comment
@@ -151,6 +154,8 @@ class CommentSerializer(serializers.ModelSerializer):
             'updated_at',
             'body',
             'author',
+            'likes',
+            'dislikes',
         )
 
     def create(self, validated_data):
@@ -169,6 +174,18 @@ class CommentSerializer(serializers.ModelSerializer):
         notify.send(author, recipient=recipients, 
                     verb="commented on", action_object=article)
         return comment
+
+    def likes_count(self, instance):
+       """
+       Gets the total number of likes for a particular comment
+       """
+       return instance.likes.count()
+
+    def dislikes_count(self, instance):
+       """
+       Gets the total number of dislikes for a particular comment
+       """
+       return instance.dislikes.count()    
 
 
 class RatingSerializer(serializers.ModelSerializer):
