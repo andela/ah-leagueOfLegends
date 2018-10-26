@@ -65,7 +65,7 @@ class ArticleViewSet(mixins.CreateModelMixin,
         serializer.is_valid(raise_exception=True)
         serializer.save(author=request.user)
 
-        return Response(serializer.data, \
+        return Response(serializer.data,
  \
                         status=status.HTTP_201_CREATED)
 
@@ -102,7 +102,10 @@ class ArticleViewSet(mixins.CreateModelMixin,
 
             raise NotFound('An article with this slug does not exist.')
 
-        serializer = self.serializer_class(article)
+        serializer = self.serializer_class(
+            article,
+            context=serializer_context
+        )
 
         return Response(
             {'article': serializer.data}, status=status.HTTP_200_OK)
