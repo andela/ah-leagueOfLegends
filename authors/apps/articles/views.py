@@ -94,6 +94,7 @@ class ArticleViewSet(mixins.CreateModelMixin,
         and returns an article with matching slug.
         Returns NotFound if an article does not exist '''
 
+        print("We are here 1")
         serializer_context = {'request': request}
 
         try:
@@ -102,7 +103,10 @@ class ArticleViewSet(mixins.CreateModelMixin,
 
             raise NotFound('An article with this slug does not exist.')
 
-        serializer = self.serializer_class(article)
+        serializer = self.serializer_class(
+            article,
+            context=serializer_context
+        )
 
         return Response(
             {'article': serializer.data}, status=status.HTTP_200_OK)
