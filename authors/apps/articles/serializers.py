@@ -43,7 +43,7 @@ class ArticleSerializer(serializers.ModelSerializer):
             Add here any other fields you want to be serialized
 
         '''
-    
+
         model = Article
         fields = (
             'author',
@@ -126,12 +126,7 @@ class ArticleSerializer(serializers.ModelSerializer):
             return False
         bookmarks = request.user.profile.bookmarks.all()
         # Checks if the instance of the article exists
-        if instance in bookmarks:
-            bookmarked = True
-        else:
-            bookmarked = False
-
-        return bookmarked
+        return instance in bookmarks
 
     def get_favorites_count(self, instance):
         return instance.favorited_by.count()
